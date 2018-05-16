@@ -22,6 +22,10 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
+function! g#_scope()
+  return s:
+endfunction
+
 " {[key: dir_path]: [branch_name, cache_key]}
 let s:branch_name_cache = {}
 
