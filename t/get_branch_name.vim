@@ -1,5 +1,8 @@
+call vspec#hint({'scope': 'g#_scope()'})
+
 describe 'g#get_branch_name'
   before
+    ResetContext
     call delete('tmp/test', 'rf')
     call mkdir('tmp/test', 'p')
     cd tmp/test
