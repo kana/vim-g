@@ -45,6 +45,12 @@ function! s:blame() "{{{1
   execute 'read !git blame --' shellescape(bufname('#'))
   1 delete _
 
+  " Clear undo history to avoid undoing to nothing.
+  let original_undolevels = &l:undolevels
+  let &l:undolevels = -1
+  execute 'normal!' "a \<BS>\<Esc>"
+  let &l:undolevels = original_undolevels
+
   " TODO: Define key to blame code older than the current line commit.
   " TODO: Undo/redo to rewind/forward such blaming.
   " TODO: Syntax highlighting.
