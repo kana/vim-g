@@ -67,9 +67,13 @@ function! s:blame_older_one()  "{{{2
     return
   endif
 
+  let pos = getpos('.')
+
   % delete _
   execute 'read !git blame' shellescape(commit_id . '~') '--' shellescape(b:g_filepath)
   1 delete _
+
+  call setpos('.', pos)
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
