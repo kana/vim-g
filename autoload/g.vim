@@ -21,11 +21,11 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-function! g#_scope() "{{{1
+function! g#_scope()  "{{{1
   return s:
 endfunction
 
-function! g#_cmd_G(subcommand, ...) "{{{1
+function! g#_cmd_G(subcommand, ...)  "{{{1
   if a:subcommand ==# 'blame'
     call s:blame()
   else
@@ -33,7 +33,7 @@ function! g#_cmd_G(subcommand, ...) "{{{1
   endif
 endfunction
 
-function! s:blame() "{{{1
+function! s:blame()  "{{{1
   if &l:buftype !=# ''
     echoerr 'g: Only a normal buffer can be blamed'
     return
@@ -55,9 +55,21 @@ function! s:blame() "{{{1
   execute 'normal!' "a \<BS>\<Esc>"
   let &l:undolevels = original_undolevels
 
-  " TODO: Define key to blame code older than the current line commit.
+  nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
   " TODO: Undo/redo to rewind/forward such blaming.
   " TODO: Syntax highlighting.
+endfunction
+
+function! s:blame_older_one()  "{{{2
+  let commit_id = matchstr(getline('.'), '^\x\+')
+  if commit_id ==# ''
+    echoerr 'g: Cannot find the commit id for the current line'
+    return
+  endif
+
+  % delete _
+  execute 'read !git blame' shellescape(commit_id . '~') '--' shellescape(b:g_filepath)
+  1 delete _
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
