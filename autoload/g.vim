@@ -41,7 +41,10 @@ function! s:blame() "{{{1
 
   new
   let b:g_blame = v:true
+
   execute 'read !git blame --' shellescape(bufname('#'))
+  1 delete _
+
   " TODO: Define key to blame code older than the current line commit.
   " TODO: Undo/redo to rewind/forward such blaming.
   " TODO: Syntax highlighting.
