@@ -25,6 +25,14 @@ function! g#_scope() "{{{1
   return s:
 endfunction
 
+function! g#_cmd_G(subcommand, ...) "{{{1
+  if a:subcommand ==# 'blame'
+    call s:blame()
+  else
+    echoerr 'g: Unknown subcommand:' string(a:subcommand)
+  endif
+endfunction
+
 function! g#get_branch_name(dir)  "{{{1
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
