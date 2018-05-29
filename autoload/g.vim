@@ -41,6 +41,8 @@ function! s:blame() "{{{1
 
   new
   let b:g_blame = v:true
+  setlocal buftype=nofile
+  setlocal noswapfile
 
   execute 'read !git blame --' shellescape(bufname('#'))
   1 delete _
