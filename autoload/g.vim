@@ -44,6 +44,7 @@ function! s:blame() "{{{1
   let b:g_filepath = fnamemodify(b:g_bufname, ':p')
   setlocal buftype=nofile
   setlocal noswapfile
+  file `=printf('[git blame] %s', b:g_bufname)`
 
   execute 'read !git blame --' shellescape(b:g_filepath)
   1 delete _
