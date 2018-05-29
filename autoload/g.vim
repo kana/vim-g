@@ -56,7 +56,6 @@ function! s:blame()  "{{{1
   let &l:undolevels = original_undolevels
 
   nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
-  " TODO: Undo/redo to rewind/forward such blaming.
   " TODO: Syntax highlighting.
 endfunction
 
@@ -67,6 +66,8 @@ function! s:blame_older_one()  "{{{2
     return
   endif
 
+  " TODO: Keep the "logical" cursor position.
+  " TODO: Keep the cursor position after undo/redo.
   let pos = getpos('.')
 
   % delete _
