@@ -34,13 +34,12 @@ function! g#_cmd_G(subcommand, ...) "{{{1
 endfunction
 
 function! s:blame() "{{{1
-  if exists('b:g_blame')
-    echoerr 'g: Cannot blame a blame viewer'
+  if &l:buftype !=# ''
+    echoerr 'g: Only a normal buffer can be blamed'
     return
   endif
 
   new
-  let b:g_blame = v:true
   setlocal buftype=nofile
   setlocal noswapfile
 
