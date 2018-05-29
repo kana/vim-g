@@ -33,6 +33,20 @@ function! g#_cmd_G(subcommand, ...) "{{{1
   endif
 endfunction
 
+function! s:blame() "{{{1
+  if exists('b:g_blame')
+    echoerr 'g: Cannot blame a blame viewer'
+    return
+  endif
+
+  new
+  let b:g_blame = v:true
+  execute 'read !git blame --' shellescape(bufname('#'))
+  " TODO: Define key to blame code older than the current line commit.
+  " TODO: Undo/redo to rewind/forward such blaming.
+  " TODO: Syntax highlighting.
+endfunction
+
 function! g#get_branch_name(dir)  "{{{1
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
