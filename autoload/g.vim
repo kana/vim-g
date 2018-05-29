@@ -40,10 +40,12 @@ function! s:blame() "{{{1
   endif
 
   new
+  let b:g_bufname = bufname('#')
+  let b:g_filepath = fnamemodify(b:g_bufname, ':p')
   setlocal buftype=nofile
   setlocal noswapfile
 
-  execute 'read !git blame --' shellescape(bufname('#'))
+  execute 'read !git blame --' shellescape(b:g_filepath)
   1 delete _
 
   " Clear undo history to avoid undoing to nothing.
