@@ -76,6 +76,9 @@ function! s:blame_older_one()  "{{{2
   " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
   "    the line just before the newly added lines in the commit.
   " TODO: Keep the cursor position after undo/redo.
+  " -- There is no appropriate event for these commands.  User will never
+  "    modify the viewer content.  Overriding u/<C-r> seems to be the best
+  "    way to implement this behavior.
   let pos = getpos('.')
 
   % delete _
