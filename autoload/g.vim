@@ -73,6 +73,8 @@ function! s:blame_older_one()  "{{{2
   endif
 
   " TODO: Keep the "logical" cursor position.
+  " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
+  "    the line just before the newly added lines in the commit.
   " TODO: Keep the cursor position after undo/redo.
   let pos = getpos('.')
 
