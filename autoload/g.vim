@@ -77,7 +77,7 @@ function! s:blame_older_one()  "{{{2
   let pos = getpos('.')
 
   % delete _
-  silent execute 'read !git blame' shellescape(commit_id . '~') '--' shellescape(b:g_filepath)
+  silent execute 'read !git blame -w' shellescape(commit_id . '~') '--' shellescape(b:g_filepath)
   1 delete _
 
   call setpos('.', pos)
