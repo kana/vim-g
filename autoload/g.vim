@@ -60,10 +60,16 @@ function! s:blame()  "{{{1
 endfunction
 
 function! s:blame_older_one()  "{{{2
-  let commit_id = matchstr(getline('.'), '^\x\+')
-  if commit_id ==# ''
+  let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) )?\(')
+  if matches == []
     echoerr 'g: Cannot find the commit id for the current line'
     return
+  endif
+
+  let commit_id = matches[1]
+  let old_filepath = matches[2]
+  if old_filepath != ''
+    let b:g_filepath = old_filepath
   endif
 
   " TODO: Keep the "logical" cursor position.
