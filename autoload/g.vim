@@ -64,7 +64,7 @@ function! s:blame()  "{{{1
 endfunction
 
 function! s:blame_older_one()  "{{{2
-  let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) )?\(')
+  let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
     return s:fail('g: Cannot find the commit id for the current line')
   endif
