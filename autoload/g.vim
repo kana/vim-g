@@ -38,14 +38,19 @@ function! s:blame()  "{{{1
     return s:fail('g: Only a normal buffer can be blamed')
   endif
 
+  let bufname = bufname('')
+  let output = system('git blame -- ' . shellescape(bufname))
+  if v:shell_error != 0
+    return s:fail('g: Failed to blame: ' . substitute(output, '[\r\n]*$', '', ''))
+  endif
+
   new
-  let b:g_bufname = bufname('#')
-  let b:g_filepath = fnamemodify(b:g_bufname, ':p')
+  let b:g_filepath = fnamemodify(bufname, ':p')
   setlocal buftype=nofile
   setlocal noswapfile
-  silent file `=printf('[git blame] %s', b:g_bufname)`
+  silent file `=printf('[git blame] %s', bufname)`
 
-  execute 'read !git blame --' shellescape(b:g_filepath)
+  put =output
   1 delete _
 
   " Clear undo history to avoid undoing to nothing.
