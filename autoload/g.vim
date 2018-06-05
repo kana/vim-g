@@ -48,6 +48,7 @@ function! s:blame()  "{{{1
   let b:g_filepath = fnamemodify(bufname, ':p')
   setlocal buftype=nofile
   setlocal noswapfile
+  setlocal nowrap
   silent file `=printf('[git blame] %s', bufname)`
 
   silent put =output
