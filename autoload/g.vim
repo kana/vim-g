@@ -49,6 +49,7 @@ function! s:blame()  "{{{1
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
+  " TODO: '[git blame] {filename_at_the_time} (#{original_bufnr})'
   silent file `=printf('[git blame] %s', bufname)`
 
   silent put =output
