@@ -1,18 +1,18 @@
 # Sample file
 
-## 1. xxxxx
+## First: xxxxx
 
 aaaaa aaaaa aaaaa
 aaaaa aaaaa aaaaa
 aaaaa aaaaa aaaaa
 
-## 2. xxxxx
+## Second: xxxxx
 
 bbbbb bbbbb bbbbb
 bbbbb bbbbb bbbbb
 bbbbb bbbbb bbbbb
 
-## 3. xxxxx
+## Third: xxxxx
 
 ccccc ccccc ccccc
 ccccc ccccc ccccc
