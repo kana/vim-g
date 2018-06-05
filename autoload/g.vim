@@ -21,15 +21,86 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-
-function! g#_scope()
+function! g#_scope()  "{{{1
   return s:
 endfunction
 
-" {[key: dir_path]: [branch_name, cache_key]}
-let s:branch_name_cache = {}
+function! g#_cmd_G(subcommand, ...)  "{{{1
+  if a:subcommand ==# 'blame'
+    call s:blame()
+  else
+    call s:fail('g: Unknown subcommand: ' . string(a:subcommand))
+  endif
+endfunction
 
-function! g#get_branch_name(dir)
+function! s:blame()  "{{{1
+  if &l:buftype !=# ''
+    return s:fail('g: Only a normal buffer can be blamed')
+  endif
+
+  let bufname = bufname('')
+  let output = system('git blame -- ' . shellescape(bufname))
+  if v:shell_error != 0
+    return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
+  endif
+
+  new
+  let b:g_filepath = fnamemodify(bufname, ':p')
+  setlocal buftype=nofile
+  setlocal noswapfile
+  silent file `=printf('[git blame] %s', bufname)`
+
+  silent put =output
+  1 delete _
+
+  " Clear undo history to avoid undoing to nothing.
+  let original_undolevels = &l:undolevels
+  let &l:undolevels = -1
+  execute 'normal!' "a \<BS>\<Esc>"
+  let &l:undolevels = original_undolevels
+
+  setlocal nomodifiable
+
+  nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
+  " TODO: Syntax highlighting.
+endfunction
+
+function! s:blame_older_one()  "{{{2
+  let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
+  if matches == []
+    return s:fail('g: Cannot find the commit id for the current line')
+  endif
+
+  let commit_id = matches[1]
+  let old_filepath = matches[2]
+  if old_filepath != ''
+    let b:g_filepath = old_filepath
+  endif
+
+  " TODO: Keep the "logical" cursor position.
+  " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
+  "    the line just before the newly added lines in the commit.
+  " TODO: Keep the cursor position after undo/redo.
+  " -- There is no appropriate event for these commands.  User will never
+  "    modify the viewer content.  Overriding u/<C-r> seems to be the best
+  "    way to implement this behavior.
+  let pos = getpos('.')
+
+  let output = system('git blame -w ' . shellescape(commit_id . '~') . ' -- ' . shellescape(b:g_filepath))
+  if v:shell_error != 0
+    return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
+  endif
+
+  setlocal modifiable
+  % delete _
+  silent put =output
+  1 delete _
+  setlocal nomodifiable
+
+  call setpos('.', pos)
+endfunction
+
+function! g#get_branch_name(dir)  "{{{1
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
   \  || cache_entry[1] !=# s:branch_name_cache_key(a:dir)
@@ -41,11 +112,14 @@ function! g#get_branch_name(dir)
   return cache_entry[0]
 endfunction
 
-function! s:branch_name_cache_key(dir)
+" {[key: dir_path]: [branch_name, cache_key]}  "{{{2
+let s:branch_name_cache = {}
+
+function! s:branch_name_cache_key(dir)  "{{{2
   return getftime(a:dir . '/.git/HEAD') . getftime(a:dir . '/.git/MERGE_HEAD')
 endfunction
 
-function! s:get_branch_name_and_cache_key(dir)
+function! s:get_branch_name_and_cache_key(dir)  "{{{2
   let git_dir = a:dir . '/.git'
 
   if isdirectory(git_dir)
@@ -92,9 +166,15 @@ function! s:get_branch_name_and_cache_key(dir)
   return [branch_name, s:branch_name_cache_key(a:dir)]
 endfunction
 
-function! s:first_line(file)
+function! s:first_line(file)  "{{{2
   let lines = readfile(a:file, '', 1)
   return 1 <= len(lines) ? lines[0] : ''
+endfunction
+
+function! s:fail(message)  "{{{1
+  echohl ErrorMsg
+  echo a:message
+  echohl None
 endfunction
 
 " __END__  "{{{1
