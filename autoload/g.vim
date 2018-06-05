@@ -59,6 +59,8 @@ function! s:blame()  "{{{1
   execute 'normal!' "a \<BS>\<Esc>"
   let &l:undolevels = original_undolevels
 
+  setlocal nomodifiable
+
   nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
   " TODO: Syntax highlighting.
 endfunction
@@ -88,9 +90,12 @@ function! s:blame_older_one()  "{{{2
   if v:shell_error != 0
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
+
+  setlocal modifiable
   % delete _
   silent put =output
   1 delete _
+  setlocal nomodifiable
 
   call setpos('.', pos)
 endfunction

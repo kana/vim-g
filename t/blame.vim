@@ -43,6 +43,7 @@ describe ':G blame'
     Expect winnr('$') == 2
     Expect bufname('') ==# '[git blame] t/fixture/example.md'
     Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
+    Expect &l:modifiable to_be_false
   end
 
   context 'viewer'
@@ -78,7 +79,9 @@ describe ':G blame'
     end
 
     it 'is an error to K on a non-blame line (though it is unlikely to occur)'
+      setlocal modifiable
       1 put! ='foo'
+      setlocal nomodifiable
 
       redir => log
       normal $K
