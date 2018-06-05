@@ -41,7 +41,7 @@ function! s:blame()  "{{{1
   let bufname = bufname('')
   let output = system('git blame -- ' . shellescape(bufname))
   if v:shell_error != 0
-    return s:fail('g: Failed to blame: ' . substitute(output, '[\r\n]*$', '', ''))
+    return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
   new
