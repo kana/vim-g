@@ -95,12 +95,6 @@ function! s:blame_older_one()  "{{{2
   call setpos('.', pos)
 endfunction
 
-function! s:fail(message)
-  echohl ErrorMsg
-  echo a:message
-  echohl None
-endfunction
-
 function! g#get_branch_name(dir)  "{{{1
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
@@ -170,6 +164,12 @@ endfunction
 function! s:first_line(file)  "{{{2
   let lines = readfile(a:file, '', 1)
   return 1 <= len(lines) ? lines[0] : ''
+endfunction
+
+function! s:fail(message)  "{{{1
+  echohl ErrorMsg
+  echo a:message
+  echohl None
 endfunction
 
 " __END__  "{{{1
