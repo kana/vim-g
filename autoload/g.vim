@@ -29,14 +29,13 @@ function! g#_cmd_G(subcommand, ...)  "{{{1
   if a:subcommand ==# 'blame'
     call s:blame()
   else
-    echoerr 'g: Unknown subcommand:' string(a:subcommand)
+    call s:fail('g: Unknown subcommand: ' . string(a:subcommand))
   endif
 endfunction
 
 function! s:blame()  "{{{1
   if &l:buftype !=# ''
-    echoerr 'g: Only a normal buffer can be blamed'
-    return
+    return s:fail('g: Only a normal buffer can be blamed')
   endif
 
   new
@@ -62,8 +61,7 @@ endfunction
 function! s:blame_older_one()  "{{{2
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) )?\(')
   if matches == []
-    echoerr 'g: Cannot find the commit id for the current line'
-    return
+    return s:fail('g: Cannot find the commit id for the current line')
   endif
 
   let commit_id = matches[1]
@@ -86,6 +84,12 @@ function! s:blame_older_one()  "{{{2
   1 delete _
 
   call setpos('.', pos)
+endfunction
+
+function! s:fail(message)
+  echohl ErrorMsg
+  echo a:message
+  echohl None
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
