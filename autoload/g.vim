@@ -50,7 +50,7 @@ function! s:blame()  "{{{1
   setlocal noswapfile
   silent file `=printf('[git blame] %s', bufname)`
 
-  put =output
+  silent put =output
   1 delete _
 
   " Clear undo history to avoid undoing to nothing.
