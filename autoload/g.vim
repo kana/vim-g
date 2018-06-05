@@ -84,8 +84,12 @@ function! s:blame_older_one()  "{{{2
   "    way to implement this behavior.
   let pos = getpos('.')
 
+  let output = system('git blame -w ' . shellescape(commit_id . '~') . ' -- ' . shellescape(b:g_filepath))
+  if v:shell_error != 0
+    return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
+  endif
   % delete _
-  silent execute 'read !git blame -w' shellescape(commit_id . '~') '--' shellescape(b:g_filepath)
+  silent put =output
   1 delete _
 
   call setpos('.', pos)
