@@ -45,11 +45,12 @@ function! s:blame()  "{{{1
   endif
 
   new
-  let b:g_filepath = fnamemodify(bufname, ':p:.')
+  let b:g_filepaths = [fnamemodify(bufname, ':p:.')]
+  let b:g_undo_index = 0
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  call s:blame_set_viewer_buffer_name('HEAD', b:g_filepath)
+  call s:blame_set_viewer_buffer_name('HEAD', b:g_filepaths[b:g_undo_index])
 
   silent put =output
   1 delete _
@@ -95,22 +96,24 @@ function! s:blame_dig_into_older_one()  "{{{2
 
   let commit_id = matches[1]
   let old_filepath = matches[2]
-  if old_filepath != ''
-    let b:g_filepath = old_filepath
+  if old_filepath == ''
+    let old_filepath = b:g_filepaths[b:g_undo_index]
   endif
 
   " TODO: Keep the "logical" cursor position.
-  " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
+  " -- Parse `git show -b commit_id old_filepath`, then locate the cursor at
   "    the line just before the newly added lines in the commit.
   let pos = getpos('.')
 
   let target_committish = commit_id . '~'
-  let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(b:g_filepath))
+  let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
-  call s:blame_set_viewer_buffer_name(target_committish, b:g_filepath)
+  let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
+  let b:g_undo_index += 1
+  call s:blame_set_viewer_buffer_name(target_committish, old_filepath)
 
   setlocal modifiable
   % delete _
@@ -122,6 +125,11 @@ function! s:blame_dig_into_older_one()  "{{{2
 endfunction
 
 function! s:blame_undo()  "{{{2
+  if b:g_undo_index == 0
+    return
+  endif
+  let b:g_undo_index -= 1
+
   " TODO: Keep the cursor position after undo.
   setlocal modifiable
   undo
@@ -129,6 +137,11 @@ function! s:blame_undo()  "{{{2
 endfunction
 
 function! s:blame_redo()  "{{{2
+  if b:g_undo_index == len(b:g_filepaths) - 1
+    return
+  endif
+  let b:g_undo_index += 1
+
   " TODO: Keep the cursor position after redo.
   setlocal modifiable
   redo
