@@ -64,9 +64,9 @@ function! s:blame()  "{{{1
   setlocal nomodifiable
 
   nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
+  nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
-  nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   " TODO: Syntax highlighting.
 endfunction
 
