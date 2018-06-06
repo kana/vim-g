@@ -3,6 +3,11 @@ runtime plugin/g.vim
 " For some reason 'shellredir' is set to '>' while running tests.
 set shellredir=>%s\ 2>&1
 
+" Sometimes it's necessary to manually break undo while running tests.
+function! s:break_undo()
+  let &l:undolevels = &l:undolevels
+endfunction
+
 describe ':G blame'
   after
     % bwipeout!
@@ -90,6 +95,38 @@ describe ':G blame'
 
       Expect log ==# 'g: Cannot find the commit id for the current line'
       Expect getline(1, '$') ==# ['foo'] + readfile('t/fixture/blame.1')
+    end
+
+    it 'enables to undo/redo blamed content'
+      normal! 15G
+      normal $K
+      call s:break_undo()
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+
+      normal! 12G
+      normal $K
+      call s:break_undo()
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+
+      normal u
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+
+      normal u
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
+
+      " Because there is nothing to undo.
+      normal u
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
+
+      execute 'normal' "\<C-r>"
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+
+      execute 'normal' "\<C-r>"
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+
+      " Because there is nothing to redo.
+      execute 'normal' "\<C-r>"
+      Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
     end
   end
 end
