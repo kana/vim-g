@@ -84,10 +84,6 @@ function! s:blame_older_one()  "{{{2
   " TODO: Keep the "logical" cursor position.
   " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
   "    the line just before the newly added lines in the commit.
-  " TODO: Keep the cursor position after undo/redo.
-  " -- There is no appropriate event for these commands.  User will never
-  "    modify the viewer content.  Overriding u/<C-r> seems to be the best
-  "    way to implement this behavior.
   let pos = getpos('.')
 
   let output = system('git blame -w ' . shellescape(commit_id . '~') . ' -- ' . shellescape(b:g_filepath))
@@ -105,12 +101,14 @@ function! s:blame_older_one()  "{{{2
 endfunction
 
 function! s:blame_undo()  "{{{2
+  " TODO: Keep the cursor position after undo.
   setlocal modifiable
   undo
   setlocal nomodifiable
 endfunction
 
 function! s:blame_redo()  "{{{2
+  " TODO: Keep the cursor position after redo.
   setlocal modifiable
   redo
   setlocal nomodifiable
