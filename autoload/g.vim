@@ -65,7 +65,7 @@ function! s:blame()  "{{{1
 
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
-  nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
+  nnoremap <buffer> o  :<C-u>call <SID>blame_older_one()<Return>
   " TODO: Syntax highlighting.
 endfunction
 
