@@ -63,6 +63,8 @@ function! s:blame()  "{{{1
 
   setlocal nomodifiable
 
+  nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
+  nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
   nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
   " TODO: Syntax highlighting.
 endfunction
@@ -100,6 +102,18 @@ function! s:blame_older_one()  "{{{2
   setlocal nomodifiable
 
   call setpos('.', pos)
+endfunction
+
+function! s:blame_undo()  "{{{2
+  setlocal modifiable
+  undo
+  setlocal nomodifiable
+endfunction
+
+function! s:blame_redo()  "{{{2
+  setlocal modifiable
+  redo
+  setlocal nomodifiable
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
