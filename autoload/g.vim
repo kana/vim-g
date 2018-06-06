@@ -49,7 +49,7 @@ function! s:blame()  "{{{1
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  silent file `=printf('[git blame] %s', b:g_filepath)`
+  call s:blame_set_viewer_buffer_name('HEAD', b:g_filepath)
 
   silent put =output
   1 delete _
@@ -67,6 +67,11 @@ function! s:blame()  "{{{1
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
   " TODO: Syntax highlighting.
+endfunction
+
+function! s:blame_set_viewer_buffer_name(committish, filepath) "{{{2
+  let committish_label = a:committish ==# 'HEAD' ? '' : a:committish . ' '
+  silent file `=printf('[git blame] %s%s', committish_label, a:filepath)`
 endfunction
 
 function! s:blame_show_this_commit()  "{{{2
