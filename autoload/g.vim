@@ -51,7 +51,7 @@ function! s:blame()  "{{{1
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  call s:blame_set_viewer_buffer_name(b:g_commit_ishes[b:g_undo_index], b:g_filepaths[b:g_undo_index])
+  call s:blame_set_viewer_buffer_name()
 
   silent put =output
   1 delete _
@@ -71,9 +71,11 @@ function! s:blame()  "{{{1
   " TODO: Syntax highlighting.
 endfunction
 
-function! s:blame_set_viewer_buffer_name(committish, filepath) "{{{2
-  let committish_label = a:committish ==# 'HEAD' ? '' : a:committish . ' '
-  silent file `=printf('[git blame] %s%s', committish_label, a:filepath)`
+function! s:blame_set_viewer_buffer_name() "{{{2
+  let commit_ish = b:g_commit_ishes[b:g_undo_index]
+  let filepath = b:g_filepaths[b:g_undo_index]
+  let commit_ish_label = commit_ish ==# 'HEAD' ? '' : commit_ish . ' '
+  silent file `=printf('[git blame] %s%s', commit_ish_label, filepath)`
 endfunction
 
 function! s:blame_show_this_commit()  "{{{2
@@ -115,7 +117,7 @@ function! s:blame_dig_into_older_one()  "{{{2
   let b:g_commit_ishes = b:g_commit_ishes[:b:g_undo_index] + [target_committish]
   let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
   let b:g_undo_index += 1
-  call s:blame_set_viewer_buffer_name(target_committish, old_filepath)
+  call s:blame_set_viewer_buffer_name()
 
   setlocal modifiable
   % delete _
