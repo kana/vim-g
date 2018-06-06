@@ -65,11 +65,11 @@ function! s:blame()  "{{{1
 
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
-  nnoremap <buffer> o  :<C-u>call <SID>blame_older_one()<Return>
+  nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   " TODO: Syntax highlighting.
 endfunction
 
-function! s:blame_older_one()  "{{{2
+function! s:blame_dig_into_older_one()  "{{{2
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
     return s:fail('g: Cannot find the commit id for the current line')
