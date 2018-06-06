@@ -58,24 +58,24 @@ describe ':G blame'
     end
 
     it 'enables to blame older content'
-      normal! 15G
-      normal $o
+      normal! 15G$
+      normal o
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
-      normal! 12G
-      normal $o
+      normal! 12G$
+      normal o
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
 
-      normal! 15G
-      normal $o
+      normal! 15G$
+      normal o
       Expect getline(1, '$') ==# readfile('t/fixture/blame.4')
     end
 
     it 'is an error to blame older content on an oldest line'
-      normal! 1G
+      normal! 1G$
 
       redir => log
-      normal $o
+      normal o
       redir END
       let log = log[1:]
 
@@ -89,7 +89,7 @@ describe ':G blame'
       setlocal nomodifiable
 
       redir => log
-      normal $o
+      normal o
       redir END
       let log = log[1:]
 
@@ -98,13 +98,13 @@ describe ':G blame'
     end
 
     it 'enables to undo/redo blamed content'
-      normal! 15G
-      normal $o
+      normal! 15G$
+      normal o
       call s:break_undo()
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
-      normal! 12G
-      normal $o
+      normal! 12G$
+      normal o
       call s:break_undo()
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
 
