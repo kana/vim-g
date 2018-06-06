@@ -45,12 +45,13 @@ function! s:blame()  "{{{1
   endif
 
   new
-  let b:g_filepath = fnamemodify(bufname, ':p')
+  let b:g_commit_ishes = ['HEAD']
+  let b:g_filepaths = [fnamemodify(bufname, ':p:.')]
+  let b:g_undo_index = 0
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  " TODO: '[git blame] {filename_at_the_time} (#{original_bufnr})'
-  silent file `=printf('[git blame] %s', bufname)`
+  call s:blame_update_viewer_buffer_name()
 
   silent put =output
   1 delete _
@@ -63,11 +64,34 @@ function! s:blame()  "{{{1
 
   setlocal nomodifiable
 
-  nnoremap <buffer> K  :<C-u>call <SID>blame_older_one()<Return>
+  nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
+  nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
+  nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
+  nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
   " TODO: Syntax highlighting.
 endfunction
 
-function! s:blame_older_one()  "{{{2
+function! s:blame_update_viewer_buffer_name() "{{{2
+  let commit_ish = b:g_commit_ishes[b:g_undo_index]
+  let filepath = b:g_filepaths[b:g_undo_index]
+  let commit_ish_label = commit_ish ==# 'HEAD' ? '' : commit_ish . ' '
+  silent file `=printf('[git blame] %s%s', commit_ish_label, filepath)`
+endfunction
+
+function! s:blame_show_this_commit()  "{{{2
+  let commit_id = matchstr(getline('.'), '\v^\x+')
+  if commit_id == ''
+    return s:fail('g: Cannot find the commit id for the current line')
+  endif
+
+  call s:.show(commit_id)
+endfunction
+
+function! s:.show(commit_id)
+  execute '!git show' shellescape(a:commit_id)
+endfunction
+
+function! s:blame_dig_into_older_one()  "{{{2
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
     return s:fail('g: Cannot find the commit id for the current line')
@@ -75,23 +99,25 @@ function! s:blame_older_one()  "{{{2
 
   let commit_id = matches[1]
   let old_filepath = matches[2]
-  if old_filepath != ''
-    let b:g_filepath = old_filepath
+  if old_filepath == ''
+    let old_filepath = b:g_filepaths[b:g_undo_index]
   endif
 
   " TODO: Keep the "logical" cursor position.
-  " -- Parse `git show -b commit_id b:g_filepath`, then locate the cursor at
+  " -- Parse `git show -b commit_id old_filepath`, then locate the cursor at
   "    the line just before the newly added lines in the commit.
-  " TODO: Keep the cursor position after undo/redo.
-  " -- There is no appropriate event for these commands.  User will never
-  "    modify the viewer content.  Overriding u/<C-r> seems to be the best
-  "    way to implement this behavior.
   let pos = getpos('.')
 
-  let output = system('git blame -w ' . shellescape(commit_id . '~') . ' -- ' . shellescape(b:g_filepath))
+  let target_committish = commit_id . '~'
+  let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
+
+  let b:g_commit_ishes = b:g_commit_ishes[:b:g_undo_index] + [target_committish]
+  let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
+  let b:g_undo_index += 1
+  call s:blame_update_viewer_buffer_name()
 
   setlocal modifiable
   % delete _
@@ -100,6 +126,32 @@ function! s:blame_older_one()  "{{{2
   setlocal nomodifiable
 
   call setpos('.', pos)
+endfunction
+
+function! s:blame_undo()  "{{{2
+  if b:g_undo_index == 0
+    return
+  endif
+  let b:g_undo_index -= 1
+  call s:blame_update_viewer_buffer_name()
+
+  " TODO: Keep the cursor position after undo.
+  setlocal modifiable
+  undo
+  setlocal nomodifiable
+endfunction
+
+function! s:blame_redo()  "{{{2
+  if b:g_undo_index == len(b:g_filepaths) - 1
+    return
+  endif
+  let b:g_undo_index += 1
+  call s:blame_update_viewer_buffer_name()
+
+  " TODO: Keep the cursor position after redo.
+  setlocal modifiable
+  redo
+  setlocal nomodifiable
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
