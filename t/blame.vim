@@ -1,3 +1,5 @@
+call vspec#hint({'scope': 'g#_scope()'})
+
 runtime plugin/g.vim
 
 " For some reason 'shellredir' is set to '>' while running tests.
@@ -11,6 +13,7 @@ endfunction
 describe ':G blame'
   after
     % bwipeout!
+    ResetContext
   end
 
   it 'can blame only a normal buffer'
@@ -55,6 +58,19 @@ describe ':G blame'
     before
       edit t/fixture/example.md
       G blame
+    end
+
+    it 'enables to show the commit for the current line'
+      let ids = []
+      call Set('s:show', {commit_id -> add(ids, commit_id)})
+
+      normal! 1G$
+      normal K
+      Expect ids ==# ['6d57cd86']
+
+      normal! 9G$
+      normal K
+      Expect ids ==# ['6d57cd86', '577278fb']
     end
 
     it 'enables to blame older content'

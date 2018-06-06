@@ -63,10 +63,24 @@ function! s:blame()  "{{{1
 
   setlocal nomodifiable
 
+  nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
   nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   " TODO: Syntax highlighting.
+endfunction
+
+function! s:blame_show_this_commit()  "{{{2
+  let commit_id = matchstr(getline('.'), '\v^\x+')
+  if commit_id == ''
+    return s:fail('g: Cannot find the commit id for the current line')
+  endif
+
+  call s:.show(commit_id)
+endfunction
+
+function! s:.show(commit_id)
+  execute '!git show' shellescape(a:commit_id)
 endfunction
 
 function! s:blame_dig_into_older_one()  "{{{2
