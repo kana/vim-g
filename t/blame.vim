@@ -76,14 +76,17 @@ describe ':G blame'
     it 'enables to blame older content'
       normal! 15G$
       normal o
+      Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
       normal! 12G$
       normal o
+      Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
 
       normal! 15G$
       normal o
+      Expect bufname('') ==# '[git blame] 5035bdbf~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.4')
     end
 
@@ -96,6 +99,7 @@ describe ':G blame'
       let log = log[1:]
 
       Expect log ==# 'g: fatal: no such path t/fixture/sample.md in 6d57cd86~'
+      Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
     end
 
@@ -110,6 +114,7 @@ describe ':G blame'
       let log = log[1:]
 
       Expect log ==# 'g: Cannot find the commit id for the current line'
+      Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# ['foo'] + readfile('t/fixture/blame.1')
     end
 
@@ -117,31 +122,39 @@ describe ':G blame'
       normal! 15G$
       normal o
       call s:break_undo()
+      Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
       normal! 12G$
       normal o
       call s:break_undo()
+      Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
 
       normal u
+      Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
       normal u
+      Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
 
       " Because there is nothing to undo.
       normal u
+      Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
 
       execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
 
       execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
 
       " Because there is nothing to redo.
       execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
     end
   end

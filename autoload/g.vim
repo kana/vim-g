@@ -104,10 +104,13 @@ function! s:blame_dig_into_older_one()  "{{{2
   "    the line just before the newly added lines in the commit.
   let pos = getpos('.')
 
-  let output = system('git blame -w ' . shellescape(commit_id . '~') . ' -- ' . shellescape(b:g_filepath))
+  let target_committish = commit_id . '~'
+  let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(b:g_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
+
+  call s:blame_set_viewer_buffer_name(target_committish, b:g_filepath)
 
   setlocal modifiable
   % delete _
