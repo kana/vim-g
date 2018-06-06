@@ -133,6 +133,7 @@ function! s:blame_undo()  "{{{2
     return
   endif
   let b:g_undo_index -= 1
+  call s:blame_update_viewer_buffer_name()
 
   " TODO: Keep the cursor position after undo.
   setlocal modifiable
@@ -145,6 +146,7 @@ function! s:blame_redo()  "{{{2
     return
   endif
   let b:g_undo_index += 1
+  call s:blame_update_viewer_buffer_name()
 
   " TODO: Keep the cursor position after redo.
   setlocal modifiable
