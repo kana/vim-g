@@ -45,12 +45,11 @@ function! s:blame()  "{{{1
   endif
 
   new
-  let b:g_filepath = fnamemodify(bufname, ':p')
+  let b:g_filepath = fnamemodify(bufname, ':p:.')
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  " TODO: '[git blame] {filename_at_the_time} (#{original_bufnr})'
-  silent file `=printf('[git blame] %s', bufname)`
+  silent file `=printf('[git blame] %s', b:g_filepath)`
 
   silent put =output
   1 delete _
