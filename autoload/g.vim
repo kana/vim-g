@@ -45,12 +45,13 @@ function! s:blame()  "{{{1
   endif
 
   new
+  let b:g_commit_ishes = ['HEAD']
   let b:g_filepaths = [fnamemodify(bufname, ':p:.')]
   let b:g_undo_index = 0
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
-  call s:blame_set_viewer_buffer_name('HEAD', b:g_filepaths[b:g_undo_index])
+  call s:blame_set_viewer_buffer_name(b:g_commit_ishes[b:g_undo_index], b:g_filepaths[b:g_undo_index])
 
   silent put =output
   1 delete _
@@ -111,6 +112,7 @@ function! s:blame_dig_into_older_one()  "{{{2
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
+  let b:g_commit_ishes = b:g_commit_ishes[:b:g_undo_index] + [target_committish]
   let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
   let b:g_undo_index += 1
   call s:blame_set_viewer_buffer_name(target_committish, old_filepath)
