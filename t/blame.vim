@@ -55,12 +55,10 @@ describe ':G blame'
   end
 
   context 'viewer'
-    before
+    it 'enables to show the commit for the current line'
       edit t/fixture/example.md
       G blame
-    end
 
-    it 'enables to show the commit for the current line'
       let ids = []
       call Set('s:show', {commit_id -> add(ids, commit_id)})
 
@@ -74,6 +72,9 @@ describe ':G blame'
     end
 
     it 'enables to blame older content'
+      edit t/fixture/example.md
+      G blame
+
       normal! 15G$
       normal o
       Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
@@ -91,6 +92,9 @@ describe ':G blame'
     end
 
     it 'is an error to blame older content on an oldest line'
+      edit t/fixture/example.md
+      G blame
+
       normal! 1G$
 
       redir => log
@@ -104,6 +108,9 @@ describe ':G blame'
     end
 
     it 'is an error to blame older content on a non-blame line (though it is unlikely to occur)'
+      edit t/fixture/example.md
+      G blame
+
       setlocal modifiable
       1 put! ='foo'
       setlocal nomodifiable
@@ -119,6 +126,9 @@ describe ':G blame'
     end
 
     it 'enables to undo/redo blamed content'
+      edit t/fixture/example.md
+      G blame
+
       normal! 15G$
       normal o
       call s:break_undo()
