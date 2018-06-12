@@ -167,5 +167,80 @@ describe ':G blame'
       Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
     end
+
+    it 'keeps the cursor line at the logically same one - -1/+1'
+      edit t/fixture/logical.md
+      G blame
+
+      normal! 6G$
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 6
+
+      normal o
+      Expect bufname('') ==# '[git blame] 2c258930~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.1')
+      Expect line('.') == 6
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 6
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 2c258930~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.1')
+      Expect line('.') == 6
+    end
+
+    it 'keeps the cursor line at the logically same one - -5/+3'
+      edit t/fixture/logical.md
+      G blame
+
+      normal! 15G$
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 15
+
+      normal o
+      Expect bufname('') ==# '[git blame] 036cb302~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.2')
+      Expect line('.') == 15 + (5 - 3) / 2
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 15
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 036cb302~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.2')
+      Expect line('.') == 15 + (5 - 3) / 2
+    end
+
+    it 'keeps the cursor line at the logically same one - -3/+5'
+      edit t/fixture/logical.md
+      G blame
+
+      normal! 25G$
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 25
+
+      normal o
+      Expect bufname('') ==# '[git blame] ab75b21c~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
+      Expect line('.') == 25 + (3 - 5) / 2
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect line('.') == 25
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] ab75b21c~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
+      Expect line('.') == 25 + (3 - 5) / 2
+    end
   end
 end
