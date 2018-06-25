@@ -181,8 +181,22 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
   "               +
   "               :
   let blocks = split(a:diff, '\v(^|\n)\zs\ze\@\@')[1:]
-  let base_line = a:pos[1]
-  " TODO: Find the right block
+
+  let original_line = a:pos[1]
+  let found_block = 0
+  for block in blocks
+    let matches = matchlist(block, '^@@ -\(\d\+\),\(\d\+\) +\(\d\+\),\(\d\+\)')
+    let [old_base, old_count, new_base, new_count] = matches[1:4]
+    if new_base <= original_line && original_line < new_base + new_count
+      let found_block = block
+    endif
+  endfor
+  if found_block is 0
+    " Might be better to show an error message,
+    " though this case is unlikely to occur.
+    return a:pos
+  endif
+
   " TODO: Guess the logical line from the block
   return a:pos
 endfunction
