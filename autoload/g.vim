@@ -44,9 +44,11 @@ function! s:blame()  "{{{1
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
+  let original_pos = getcurpos()
   new
   let b:g_commit_ishes = ['HEAD']
   let b:g_filepaths = [fnamemodify(bufname, ':p:.')]
+  let b:g_positions = [[bufnr('')] + original_pos[1:]]
   let b:g_undo_index = 0
   setlocal buftype=nofile
   setlocal noswapfile
@@ -106,7 +108,7 @@ function! s:blame_dig_into_older_one()  "{{{2
   " TODO: Keep the "logical" cursor position.
   " -- Parse `git show -b commit_id old_filepath`, then locate the cursor at
   "    the line just before the newly added lines in the commit.
-  let pos = getpos('.')
+  let pos = getcurpos()
 
   let target_committish = commit_id . '~'
   let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(old_filepath))
@@ -116,6 +118,7 @@ function! s:blame_dig_into_older_one()  "{{{2
 
   let b:g_commit_ishes = b:g_commit_ishes[:b:g_undo_index] + [target_committish]
   let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
+  let b:g_positions = b:g_positions[:b:g_undo_index] + [pos]
   let b:g_undo_index += 1
   call s:blame_update_viewer_buffer_name()
 
@@ -135,10 +138,11 @@ function! s:blame_undo()  "{{{2
   let b:g_undo_index -= 1
   call s:blame_update_viewer_buffer_name()
 
-  " TODO: Keep the cursor position after undo.
   setlocal modifiable
   undo
   setlocal nomodifiable
+
+  call setpos('.', b:g_positions[b:g_undo_index])
 endfunction
 
 function! s:blame_redo()  "{{{2
@@ -148,10 +152,11 @@ function! s:blame_redo()  "{{{2
   let b:g_undo_index += 1
   call s:blame_update_viewer_buffer_name()
 
-  " TODO: Keep the cursor position after redo.
   setlocal modifiable
   redo
   setlocal nomodifiable
+
+  call setpos('.', b:g_positions[b:g_undo_index])
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
