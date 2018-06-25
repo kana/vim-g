@@ -170,9 +170,8 @@ describe ':G blame'
 
     it 'keeps the cursor line at the logically same one - -1/+1'
       edit t/fixture/logical.md
-      G blame
-
       normal! 6G$
+      G blame
       Expect bufname('') ==# '[git blame] t/fixture/logical.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
       Expect [1, line('.')] == [1, 6]
@@ -195,9 +194,8 @@ describe ':G blame'
 
     it 'keeps the cursor line at the logically same one - -5/+3'
       edit t/fixture/logical.md
-      G blame
-
       normal! 15G$
+      G blame
       Expect bufname('') ==# '[git blame] t/fixture/logical.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
       Expect [1, line('.')] == [1, 15]
@@ -220,9 +218,8 @@ describe ':G blame'
 
     it 'keeps the cursor line at the logically same one - -3/+5'
       edit t/fixture/logical.md
-      G blame
-
       normal! 25G$
+      G blame
       Expect bufname('') ==# '[git blame] t/fixture/logical.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
       Expect [1, line('.')] == [1, 25]
