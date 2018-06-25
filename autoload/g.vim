@@ -66,6 +66,8 @@ function! s:blame()  "{{{1
 
   setlocal nomodifiable
 
+  call setpos('.', b:g_positions[b:g_undo_index])
+
   nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
   nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
