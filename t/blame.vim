@@ -55,12 +55,10 @@ describe ':G blame'
   end
 
   context 'viewer'
-    before
+    it 'enables to show the commit for the current line'
       edit t/fixture/example.md
       G blame
-    end
 
-    it 'enables to show the commit for the current line'
       let ids = []
       call Set('s:show', {commit_id -> add(ids, commit_id)})
 
@@ -74,6 +72,9 @@ describe ':G blame'
     end
 
     it 'enables to blame older content'
+      edit t/fixture/example.md
+      G blame
+
       normal! 15G$
       normal o
       Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
@@ -91,6 +92,9 @@ describe ':G blame'
     end
 
     it 'is an error to blame older content on an oldest line'
+      edit t/fixture/example.md
+      G blame
+
       normal! 1G$
 
       redir => log
@@ -104,6 +108,9 @@ describe ':G blame'
     end
 
     it 'is an error to blame older content on a non-blame line (though it is unlikely to occur)'
+      edit t/fixture/example.md
+      G blame
+
       setlocal modifiable
       1 put! ='foo'
       setlocal nomodifiable
@@ -119,6 +126,9 @@ describe ':G blame'
     end
 
     it 'enables to undo/redo blamed content'
+      edit t/fixture/example.md
+      G blame
+
       normal! 15G$
       normal o
       call s:break_undo()
@@ -156,6 +166,78 @@ describe ':G blame'
       execute 'normal' "\<C-r>"
       Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+    end
+
+    it 'keeps the cursor line at the logically same one - -1/+1'
+      edit t/fixture/logical.md
+      normal! 6G$
+      G blame
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [1, line('.')] == [1, 6]
+
+      normal o
+      Expect bufname('') ==# '[git blame] 2c258930~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.1')
+      Expect [2, line('.')] == [2, 6]
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [3, line('.')] == [3, 6]
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 2c258930~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.1')
+      Expect [4, line('.')] == [4, 6]
+    end
+
+    it 'keeps the cursor line at the logically same one - -5/+3'
+      edit t/fixture/logical.md
+      normal! 15G$
+      G blame
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [1, line('.')] == [1, 15]
+
+      normal o
+      Expect bufname('') ==# '[git blame] 036cb302~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.2')
+      Expect [2, line('.')] == [2, 15 + (5 - 3) / 2]
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [3, line('.')] == [3, 15]
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] 036cb302~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.2')
+      Expect [4, line('.')] == [4, 15 + (5 - 3) / 2]
+    end
+
+    it 'keeps the cursor line at the logically same one - -3/+5'
+      edit t/fixture/logical.md
+      normal! 25G$
+      G blame
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [1, line('.')] == [1, 25]
+
+      normal o
+      Expect bufname('') ==# '[git blame] ab75b21c~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
+      Expect [2, line('.')] == [2, 25 + (3 - 5) / 2]
+
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [3, line('.')] == [3, 25]
+
+      execute 'normal' "\<C-r>"
+      Expect bufname('') ==# '[git blame] ab75b21c~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
+      Expect [4, line('.')] == [4, 25 + (3 - 5) / 2]
     end
   end
 end
