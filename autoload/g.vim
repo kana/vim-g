@@ -113,7 +113,7 @@ function! s:blame_dig_into_older_one()  "{{{2
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
-  let diff = system('git show -b ' . shellescape(target_committish) . ' -- ' . shellescape(old_filepath))
+  let diff = system('git show -b ' . shellescape(commit_id) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
   endif
