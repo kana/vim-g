@@ -182,6 +182,7 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
   "               :
   let blocks = split(a:diff, '\v(^|\n)\zs\ze\@\@')[1:]
 
+  " Find a right diff block.
   let original_line = a:pos[1]
   let found_block = 0
   for block in blocks
@@ -197,8 +198,37 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
     return a:pos
   endif
 
-  " TODO: Guess the logical line from the block
-  return a:pos
+  " Find a series of changed lines which includes the original line.
+  let old_line = old_base - 1
+  let new_line = new_base - 1
+  let added_line_count = 0
+  let deleted_line_count = 0
+  let found_changed_lines = v:false
+  for diff_line in split(block, '\n', !0)[1:]
+    if diff_line[0] ==# '+'
+      let new_line += 1
+      let added_line_count += 1
+      if new_line == original_line
+        let found_changed_lines = v:true
+      endif
+    elseif diff_line[0] ==# '-'
+      let old_line += 1
+      let deleted_line_count += 1
+    else
+      if found_changed_lines
+        break
+      endif
+      let new_line += 1
+      let old_line += 1
+      let added_line_count = 0
+      let deleted_line_count = 0
+    endif
+  endfor
+
+  " Guess the line number for the old content from the changed lines.
+  let guessed_pos = copy(a:pos)
+  let guessed_pos[1] = original_line + (deleted_line_count - added_line_count) / 2
+  return guessed_pos
 endfunction
 
 function! s:blame_undo()  "{{{2
