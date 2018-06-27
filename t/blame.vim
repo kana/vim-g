@@ -237,7 +237,7 @@ describe ':G blame'
       execute 'normal' "\<C-r>"
       Expect bufname('') ==# '[git blame] ab75b21c~ t/fixture/logical.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
-      Expect [5, line('.')] == [4, 25 + (3 - 5) / 2]
+      Expect [4, line('.')] == [4, 25 + (3 - 5) / 2]
     end
   end
 end
