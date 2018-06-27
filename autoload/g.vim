@@ -117,7 +117,7 @@ function! s:blame_dig_into_older_one()  "{{{2
   if v:shell_error != 0
     return s:fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
   endif
-  let pos = s:blame_guess_logical_cursor_position(diff, b:g_positions[b:g_undo_index])
+  let pos = s:blame_guess_logical_cursor_position(diff, getcurpos())
 
   let b:g_commit_ishes = b:g_commit_ishes[:b:g_undo_index] + [target_committish]
   let b:g_filepaths = b:g_filepaths[:b:g_undo_index] + [old_filepath]
