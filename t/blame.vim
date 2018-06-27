@@ -239,5 +239,25 @@ describe ':G blame'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.3')
       Expect [4, line('.')] == [4, 25 + (3 - 5) / 2]
     end
+
+    it 'keeps the cursor line at the logically same one - -1/+1'
+      edit t/fixture/logical.md
+      normal! 2G$
+      G blame
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [1, line('.')] == [1, 2]
+
+      normal! 6G$
+      normal o
+      Expect bufname('') ==# '[git blame] 2c258930~ t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.1')
+      Expect [2, line('.')] == [2, 6]
+
+      normal! 4G$
+      normal u
+      Expect bufname('') ==# '[git blame] t/fixture/logical.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
+      Expect [3, line('.')] == [3, 2]
   end
 end
