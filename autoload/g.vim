@@ -228,8 +228,6 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
       endif
       let new_line += 1
       let old_line += 1
-      let added_line_count = 0
-      let deleted_line_count = 0
     endif
   endfor
 
