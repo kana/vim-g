@@ -234,7 +234,7 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
 
   " Guess the line number for the old content from the changed lines.
   let guessed_pos = copy(a:pos)
-  let guessed_pos[1] = original_line + (deleted_line_count - added_line_count) / 2
+  let guessed_pos[1] = original_line + (old_base - new_base) + (deleted_line_count - added_line_count) / 2
   return guessed_pos
 endfunction
 
