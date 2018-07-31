@@ -113,8 +113,9 @@ function! s:blame_dig_into_older_one()  "{{{2
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
-  let latest_commit_id = s:blame_find_latest_commit_from_blame_output(split(output, '\n'))
-  let diff = system('git diff -b ' . shellescape(latest_commit_id) . '..' . shellescape(commit_id) . ' -- ' . shellescape(old_filepath))
+  let before_commit_id = s:blame_find_latest_commit_from_blame_output(getline(1, '$'))
+  let after_commit_id = s:blame_find_latest_commit_from_blame_output(split(output, '\n'))
+  let diff = system('git diff -b ' . shellescape(after_commit_id) . '..' . shellescape(before_commit_id) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
   endif
