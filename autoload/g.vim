@@ -209,31 +209,42 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
   " Find a series of changed lines which includes the original line.
   let old_line = old_base - 1
   let new_line = new_base - 1
-  let added_line_count = 0
-  let deleted_line_count = 0
+  let importantly_added_line_count = 0
+  let importantly_deleted_line_count = 0
+  let totally_added_line_count = 0
+  let totally_deleted_line_count = 0
   let found_changed_lines = v:false
   for diff_line in split(block, '\n', !0)[1:]
     if diff_line[0] ==# '+'
       let new_line += 1
-      let added_line_count += 1
+      let importantly_added_line_count += 1
+      let totally_added_line_count += 1
       if new_line == original_line
         let found_changed_lines = v:true
       endif
     elseif diff_line[0] ==# '-'
       let old_line += 1
-      let deleted_line_count += 1
+      let importantly_deleted_line_count += 1
+      let totally_deleted_line_count += 1
     else
       if found_changed_lines
         break
       endif
       let new_line += 1
       let old_line += 1
+      let importantly_added_line_count = 0
+      let importantly_deleted_line_count = 0
     endif
   endfor
 
   " Guess the line number for the old content from the changed lines.
   let guessed_pos = copy(a:pos)
-  let guessed_pos[1] = original_line + (old_base - new_base) + (deleted_line_count - added_line_count) / 2
+  let guessed_pos[1] =
+  \   original_line
+  \ + (old_base - new_base)
+  \ + (importantly_deleted_line_count - importantly_added_line_count) / 2
+  \ + ((totally_deleted_line_count - importantly_deleted_line_count)
+  \    - (totally_added_line_count - importantly_added_line_count))
   return guessed_pos
 endfunction
 
