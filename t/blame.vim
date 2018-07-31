@@ -270,7 +270,7 @@ describe ':G blame'
       Expect [1, line('.')] == [1, 15]
 
       normal o
-      Expect bufname('') ==# '[git blame] 0bf70e01~ t/fixture/logical-over-multiple-commits.md'
+      Expect bufname('') ==# '[git blame] 0510886a~ t/fixture/logical-over-multiple-commits.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical-over-multiple-commits.md.blame.1')
       Expect [2, line('.')] == [2, 11]
   end
