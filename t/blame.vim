@@ -260,4 +260,18 @@ describe ':G blame'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
       Expect [3, line('.')] == [3, 2]
   end
+
+    it 'keeps the cursor line at the logically same one - many commits'
+      edit t/fixture/logical-over-multiple-commits.md
+      normal! 15G$
+      G blame
+      Expect bufname('') ==# '[git blame] t/fixture/logical-over-multiple-commits.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical-over-multiple-commits.md.blame.0')
+      Expect [1, line('.')] == [1, 15]
+
+      normal o
+      Expect bufname('') ==# '[git blame] 0bf70e01~ t/fixture/logical-over-multiple-commits.md'
+      Expect getline(1, '$') ==# readfile('t/fixture/logical-over-multiple-commits.md.blame.1')
+      Expect [2, line('.')] == [2, 11]
+  end
 end
