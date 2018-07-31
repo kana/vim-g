@@ -113,7 +113,7 @@ function! s:blame_dig_into_older_one()  "{{{2
     return s:fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
-  let latest_commit_id = s:blame_find_latest_commit_from_blame_output(output)
+  let latest_commit_id = s:blame_find_latest_commit_from_blame_output(split(output, '\n'))
   let diff = system('git diff -b ' . shellescape(latest_commit_id) . '..' . shellescape(commit_id) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
     return s:fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
@@ -135,8 +135,8 @@ function! s:blame_dig_into_older_one()  "{{{2
   call setpos('.', pos)
 endfunction
 
-function! s:blame_find_latest_commit_from_blame_output(output)
-  let lines = map(split(a:output, '\n'), {_, v -> substitute(v, '^\(\x\+\).\{-} (.* \(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\) .*$', '\2\t\1', '')})
+function! s:blame_find_latest_commit_from_blame_output(blame_lines)
+  let lines = map(a:blame_lines, {_, v -> substitute(v, '^\(\x\+\).\{-} (.* \(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\) .*$', '\2\t\1', '')})
   call sort(lines)
   return split(lines[-1], '\t')[1]
 endfunction
