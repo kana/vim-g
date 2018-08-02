@@ -1,5 +1,8 @@
 call vspec#hint({'scope': 'g#_scope()'})
 
+filetype on
+syntax enable
+
 runtime plugin/g.vim
 
 " For some reason 'shellredir' is set to '>' while running tests.
@@ -273,6 +276,52 @@ describe ':G blame'
       Expect bufname('') ==# '[git blame] 0510886a~ t/fixture/logical-over-multiple-commits.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical-over-multiple-commits.md.blame.1')
       Expect [2, line('.')] == [2, 11]
+    end
+
+    it 'highlights blame header'
+      edit t/fixture/highlight.vim
+      G blame
+
+      let char_from_name = {
+      \   '': '.',
+      \   'gitBlameHeader': '=',
+      \   'vimUserCommand': 'C',
+      \   'vimUserCmd': 'c',
+      \   'vimIsCommand': 'G',
+      \   'vimString': '"',
+      \   'vimComment': '#',
+      \   'vimFuncKey': 'F',
+      \   'vimFunction': 'f',
+      \   'vimParenSep': '(',
+      \   'vimFuncBody': 'b',
+      \   'vimNotFunc': 'n',
+      \   'vimCommand': 'm',
+      \   'vimSep': '{',
+      \   'vimNumber': '1',
+      \   'vimOperParen': 'o',
+      \   'vimUserFunc': 'U',
+      \ }
+      let stats = []
+      for line in range(1, line('$'))
+        let stat = []
+        for column in range(1, col([line, '$']) - 1)
+          let name = synIDattr(synID(line, column, v:true), 'name')
+          call add(stat, get(char_from_name, name, '?'))
+        endfor
+        call add(stats, join(stat, ''))
+      endfor
+      Expect stats ==# [
+      \   '====================================================.CCCCCCCccGcGGGGc"""',
+      \   '====================================================.#################',
+      \   '====================================================.FFFFFFFFfff((',
+      \   '====================================================bbbnnnnnnb"""',
+      \   '====================================================bmmmmmmmmmmm',
+      \   '====================================================.""""""""""{{{1',
+      \   '====================================================ooooooooooooooooo"""',
+      \   '====================================================oooooooooooU((',
+      \   '====================================================oooooooooo"""',
+      \   '====================================================oooooooooooo',
+      \ ]
     end
   end
 end
