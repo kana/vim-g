@@ -259,7 +259,7 @@ describe ':G blame'
       Expect bufname('') ==# '[git blame] t/fixture/logical.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical.md.blame.0')
       Expect [3, line('.')] == [3, 2]
-  end
+    end
 
     it 'keeps the cursor line at the logically same one - many commits'
       edit t/fixture/logical-over-multiple-commits.md
@@ -273,5 +273,6 @@ describe ':G blame'
       Expect bufname('') ==# '[git blame] 0510886a~ t/fixture/logical-over-multiple-commits.md'
       Expect getline(1, '$') ==# readfile('t/fixture/logical-over-multiple-commits.md.blame.1')
       Expect [2, line('.')] == [2, 11]
+    end
   end
 end
