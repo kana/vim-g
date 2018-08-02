@@ -45,6 +45,7 @@ function! s:blame()  "{{{1
   endif
 
   let original_pos = getcurpos()
+  let original_filetype = &l:filetype
   new
   let b:g_commit_ishes = ['HEAD']
   let b:g_filepaths = [fnamemodify(bufname, ':p:.')]
@@ -53,6 +54,9 @@ function! s:blame()  "{{{1
   setlocal buftype=nofile
   setlocal noswapfile
   setlocal nowrap
+  execute 'setfiletype' original_filetype
+  syntax match gitBlameHeader /^\^\?\x\+ \%(\S\+ \+\)\?(.\{-} \d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d .\d\d\d\d \+\d\+)/ containedin=ALL
+  highlight default link gitBlameHeader LineNr
   call s:blame_update_viewer_buffer_name()
 
   silent put =output
@@ -72,7 +76,6 @@ function! s:blame()  "{{{1
   nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
   nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
   nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
-  " TODO: Syntax highlighting.
 endfunction
 
 function! s:blame_update_viewer_buffer_name() "{{{2
