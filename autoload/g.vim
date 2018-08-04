@@ -71,6 +71,7 @@ function! s:blame()  "{{{1
   setlocal nomodifiable
 
   call setpos('.', b:g_positions[b:g_undo_index])
+  normal! zz
 
   nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
   nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
@@ -137,6 +138,7 @@ function! s:blame_dig_into_older_one()  "{{{2
   setlocal nomodifiable
 
   call setpos('.', pos)
+  normal! zz
 endfunction
 
 function! s:blame_find_latest_commit_from_blame_output(blame_lines)
@@ -263,6 +265,7 @@ function! s:blame_undo()  "{{{2
   setlocal nomodifiable
 
   call setpos('.', b:g_positions[b:g_undo_index])
+  normal! zz
 endfunction
 
 function! s:blame_redo()  "{{{2
@@ -277,6 +280,7 @@ function! s:blame_redo()  "{{{2
   setlocal nomodifiable
 
   call setpos('.', b:g_positions[b:g_undo_index])
+  normal! zz
 endfunction
 
 function! g#get_branch_name(dir)  "{{{1
