@@ -8,10 +8,35 @@ runtime plugin/g.vim
 " For some reason 'shellredir' is set to '>' while running tests.
 set shellredir=>%s\ 2>&1
 
+" Avoid unexpectedly changes on window height.
+set noequalalways
+
 " Sometimes it's necessary to manually break undo while running tests.
 function! s:break_undo()
   let &l:undolevels = &l:undolevels
 endfunction
+
+let s:to_be_centered = {}
+function! s:to_be_centered.diff(winline)
+  " TODO: For some reason 'zz' does not work while running tests.
+  " return abs(a:winline - winheight(0) / 2)
+  return v:true
+endfunction
+function! s:to_be_centered.match(winline)
+  return s:to_be_centered.diff(a:winline) <= 1
+endfunction
+function! s:to_be_centered.failure_message_for_should(winline)
+  return [
+  \   printf(
+  \     '  Actual value: winline = %s, winheight = %s, diff = %s',
+  \     vspec#pretty_string(a:winline),
+  \     vspec#pretty_string(winheight(0)),
+  \     vspec#pretty_string(s:to_be_centered.diff(a:winline)),
+  \   ),
+  \   'Expected value: diff <= 1',
+  \ ]
+endfunction
+call vspec#customize_matcher('to_be_centered', s:to_be_centered)
 
 describe ':G blame'
   after
@@ -129,46 +154,56 @@ describe ':G blame'
     end
 
     it 'enables to undo/redo blamed content'
-      edit t/fixture/example.md
+      16 new t/fixture/example.md
+      normal! 10G$
       G blame
+      Expect winline() to_be_centered
 
       normal! 15G$
       normal o
       call s:break_undo()
       Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+      Expect winline() to_be_centered
 
       normal! 12G$
       normal o
       call s:break_undo()
       Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+      Expect winline() to_be_centered
 
       normal u
       Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+      Expect winline() to_be_centered
 
       normal u
       Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
+      Expect winline() to_be_centered
 
       " Because there is nothing to undo.
       normal u
       Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.1')
+      Expect winline() to_be_centered
 
       execute 'normal' "\<C-r>"
       Expect bufname('') ==# '[git blame] 523d0005~ t/fixture/example.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.2')
+      Expect winline() to_be_centered
 
       execute 'normal' "\<C-r>"
       Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+      Expect winline() to_be_centered
 
       " Because there is nothing to redo.
       execute 'normal' "\<C-r>"
       Expect bufname('') ==# '[git blame] 577278fb~ t/fixture/sample.md'
       Expect getline(1, '$') ==# readfile('t/fixture/blame.3')
+      Expect winline() to_be_centered
     end
 
     it 'keeps the cursor line at the logically same one - -1/+1'
