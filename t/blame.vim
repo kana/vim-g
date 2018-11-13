@@ -153,6 +153,17 @@ describe ':G blame'
       Expect getline(1, '$') ==# ['foo'] + readfile('t/fixture/blame.1')
     end
 
+    it 'is an error to blame older content on a root-commit line'
+      put =['^5f06937825d foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) <?php']
+
+      redir => log
+      call Call('s:blame_dig_into_older_one')
+      redir END
+      let log = log[1:]
+
+      Expect log ==# 'g: There is no content older than the root commit'
+    end
+
     it 'enables to undo/redo blamed content'
       16 new t/fixture/example.md
       normal! 10G$
