@@ -1,4 +1,4 @@
-call vspec#hint({'scope': 'g#_scope()'})
+call vspec#hint({'scope': 'g#_scope()', 'sid': 'g#_sid()'})
 
 filetype on
 syntax enable
@@ -99,6 +99,17 @@ describe ':G blame'
       Expect ids ==# ['6d57cd86', '577278fb']
     end
 
+    it 'enables to show the commit for the current line, and works even if a root-commit line'
+      put =['^5f06937825d foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) <?php']
+
+      let ids = []
+      call Set('s:show', {commit_id -> add(ids, commit_id)})
+
+      call Call('s:blame_show_this_commit')
+
+      Expect ids ==# ['5f06937825d']
+    end
+
     it 'enables to blame older content'
       edit t/fixture/example.md
       G blame
@@ -151,6 +162,17 @@ describe ':G blame'
       Expect log ==# 'g: Cannot find the commit id for the current line'
       Expect bufname('') ==# '[git blame] t/fixture/example.md'
       Expect getline(1, '$') ==# ['foo'] + readfile('t/fixture/blame.1')
+    end
+
+    it 'is an error to blame older content on a root-commit line'
+      put =['^5f06937825d foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) <?php']
+
+      redir => log
+      call Call('s:blame_dig_into_older_one')
+      redir END
+      let log = log[1:]
+
+      Expect log ==# 'g: There is no content older than the root commit'
     end
 
     it 'enables to undo/redo blamed content'
@@ -358,5 +380,40 @@ describe ':G blame'
       \   '====================================================oooooooooooo',
       \ ]
     end
+  end
+end
+
+describe 's:blame_find_latest_commit_from_blame_output'
+  it 'works for ordinary blame output which does not contain the root commit'
+    let lines = [
+    \   '10000001 foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) L1',
+    \   '10000002 foo/bar/baz.md (kana 2018-11-13 06:05:21 +0000 2) L2',
+    \   '10000003 foo/bar/baz.md (kana 2016-12-01 06:05:21 +0000 3) L3',
+    \   '10000004 foo/bar/baz.md (kana 2008-03-12 06:05:21 +0000 4) L4',
+    \   '10000005 foo/bar/baz.md (kana 2010-09-09 06:05:21 +0000 5) L5',
+    \ ]
+    Expect Call('s:blame_find_latest_commit_from_blame_output', lines) ==# '10000002'
+  end
+
+  it 'works for blame output which contains the root commit'
+    let lines = [
+    \   '10000001 foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) L1',
+    \   '10000002 foo/bar/baz.md (kana 2018-11-13 06:05:21 +0000 2) L2',
+    \   '^1000000 foo/bar/baz.md (kana 2016-12-01 06:05:21 +0000 3) L3',
+    \   '10000004 foo/bar/baz.md (kana 2008-03-12 06:05:21 +0000 4) L4',
+    \   '10000005 foo/bar/baz.md (kana 2010-09-09 06:05:21 +0000 5) L5',
+    \ ]
+    Expect Call('s:blame_find_latest_commit_from_blame_output', lines) ==# '10000002'
+  end
+
+  it 'works for blame output which contains only the root commit'
+    let lines = [
+    \   '^1000008 foo/bar/baz.md (kana 2018-11-13 20:45:00 +0000 1) L1',
+    \   '^1000008 foo/bar/baz.md (kana 2018-11-13 20:45:00 +0000 2) L2',
+    \   '^1000008 foo/bar/baz.md (kana 2018-11-13 20:45:00 +0000 3) L3',
+    \   '^1000008 foo/bar/baz.md (kana 2018-11-13 20:45:00 +0000 4) L4',
+    \   '^1000008 foo/bar/baz.md (kana 2018-11-13 20:45:00 +0000 5) L5',
+    \ ]
+    Expect Call('s:blame_find_latest_commit_from_blame_output', lines) ==# '1000008'
   end
 end

@@ -25,6 +25,12 @@ function! g#_scope()  "{{{1
   return s:
 endfunction
 
+function! g#_sid()  "{{{1
+  return maparg('<SID>', 'n')
+endfunction
+
+nnoremap <SID>  <SID>
+
 function! g#_cmd_G(subcommand, ...)  "{{{1
   if a:subcommand ==# 'blame'
     call s:blame()
@@ -87,7 +93,7 @@ function! s:blame_update_viewer_buffer_name() "{{{2
 endfunction
 
 function! s:blame_show_this_commit()  "{{{2
-  let commit_id = matchstr(getline('.'), '\v^\x+')
+  let commit_id = matchstr(getline('.'), '\v^\^?\zs\x+')
   if commit_id == ''
     return s:fail('g: Cannot find the commit id for the current line')
   endif
@@ -100,6 +106,10 @@ function! s:.show(commit_id)
 endfunction
 
 function! s:blame_dig_into_older_one()  "{{{2
+  if getline('.') =~ '^\^'
+    return s:fail('g: There is no content older than the root commit')
+  endif
+
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
     return s:fail('g: Cannot find the commit id for the current line')
@@ -142,7 +152,7 @@ function! s:blame_dig_into_older_one()  "{{{2
 endfunction
 
 function! s:blame_find_latest_commit_from_blame_output(blame_lines)
-  let lines = map(a:blame_lines, {_, v -> substitute(v, '^\(\x\+\).\{-} (.* \(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\) .*$', '\2\t\1', '')})
+  let lines = map(a:blame_lines, {_, v -> substitute(v, '^^\?\(\x\+\).\{-} (.* \(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\) .*$', '\2\t\1', '')})
   call sort(lines)
   return split(lines[-1], '\t')[1]
 endfunction
