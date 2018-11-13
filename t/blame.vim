@@ -1,4 +1,4 @@
-call vspec#hint({'scope': 'g#_scope()'})
+call vspec#hint({'scope': 'g#_scope()', 'sid': 'g#_sid()'})
 
 filetype on
 syntax enable

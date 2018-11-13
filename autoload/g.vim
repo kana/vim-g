@@ -25,6 +25,12 @@ function! g#_scope()  "{{{1
   return s:
 endfunction
 
+function! g#_sid()  "{{{1
+  return maparg('<SID>', 'n')
+endfunction
+
+nnoremap <SID>  <SID>
+
 function! g#_cmd_G(subcommand, ...)  "{{{1
   if a:subcommand ==# 'blame'
     call s:blame()
