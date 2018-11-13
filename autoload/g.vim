@@ -93,7 +93,7 @@ function! s:blame_update_viewer_buffer_name() "{{{2
 endfunction
 
 function! s:blame_show_this_commit()  "{{{2
-  let commit_id = matchstr(getline('.'), '\v^\x+')
+  let commit_id = matchstr(getline('.'), '\v^\^?\zs\x+')
   if commit_id == ''
     return s:fail('g: Cannot find the commit id for the current line')
   endif
