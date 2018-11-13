@@ -99,6 +99,17 @@ describe ':G blame'
       Expect ids ==# ['6d57cd86', '577278fb']
     end
 
+    it 'enables to show the commit for the current line, and works even if a root-commit line'
+      put =['^5f06937825d foo/bar/baz.md (kana 2011-04-27 06:05:21 +0000 1) <?php']
+
+      let ids = []
+      call Set('s:show', {commit_id -> add(ids, commit_id)})
+
+      call Call('s:blame_show_this_commit')
+
+      Expect ids ==# ['5f06937825d']
+    end
+
     it 'enables to blame older content'
       edit t/fixture/example.md
       G blame
