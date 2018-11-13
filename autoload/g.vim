@@ -106,6 +106,10 @@ function! s:.show(commit_id)
 endfunction
 
 function! s:blame_dig_into_older_one()  "{{{2
+  if getline('.') =~ '^\^'
+    return s:fail('g: There is no content older than the root commit')
+  endif
+
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
     return s:fail('g: Cannot find the commit id for the current line')
