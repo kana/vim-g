@@ -1,4 +1,4 @@
-call vspec#hint({'scope': 'g#_scope()'})
+call vspec#hint({'scope': 'g#branch#_scope()'})
 
 describe 'g#get_branch_name'
   before
