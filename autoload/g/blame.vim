@@ -34,13 +34,13 @@ nnoremap <SID> <SID>
 
 function! g#blame#_cli()
   if &l:buftype !=# ''
-    return g#fail('g: Only a normal buffer can be blamed')
+    return g#_fail('g: Only a normal buffer can be blamed')
   endif
 
   let bufname = bufname('')
   let output = system('git blame -- ' . shellescape(bufname))
   if v:shell_error != 0
-    return g#fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
+    return g#_fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
   let original_pos = getcurpos()
@@ -88,7 +88,7 @@ endfunction
 function! s:blame_show_this_commit()
   let commit_id = matchstr(getline('.'), '\v^\^?\zs\x+')
   if commit_id == ''
-    return g#fail('g: Cannot find the commit id for the current line')
+    return g#_fail('g: Cannot find the commit id for the current line')
   endif
 
   call s:.show(commit_id)
@@ -100,12 +100,12 @@ endfunction
 
 function! s:blame_dig_into_older_one()
   if getline('.') =~ '^\^'
-    return g#fail('g: There is no content older than the root commit')
+    return g#_fail('g: There is no content older than the root commit')
   endif
 
   let matches = matchlist(getline('.'), '\v^(\x+) %((\S+) +)?\(')
   if matches == []
-    return g#fail('g: Cannot find the commit id for the current line')
+    return g#_fail('g: Cannot find the commit id for the current line')
   endif
 
   let commit_id = matches[1]
@@ -117,14 +117,14 @@ function! s:blame_dig_into_older_one()
   let target_committish = commit_id . '~'
   let output = system('git blame -w ' . shellescape(target_committish) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
-    return g#fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
+    return g#_fail('g: ' . substitute(output, '[\r\n]*$', '', ''))
   endif
 
   let before_commit_id = s:blame_find_latest_commit_from_blame_output(getline(1, '$'))
   let after_commit_id = s:blame_find_latest_commit_from_blame_output(split(output, '\n'))
   let diff = system('git diff -b ' . shellescape(after_commit_id) . '..' . shellescape(before_commit_id) . ' -- ' . shellescape(old_filepath))
   if v:shell_error != 0
-    return g#fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
+    return g#_fail('g: ' . substitute(diff, '[\r\n]*$', '', ''))
   endif
   let pos = s:blame_guess_logical_cursor_position(diff, getcurpos())
 

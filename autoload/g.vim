@@ -26,11 +26,11 @@ function! g#_cmd_G(subcommand, ...)
   if a:subcommand ==# 'blame'
     call g#blame#_cli()
   else
-    call g#fail('g: Unknown subcommand: ' . string(a:subcommand))
+    call g#_fail('g: Unknown subcommand: ' . string(a:subcommand))
   endif
 endfunction
 
-function! g#fail(message)
+function! g#_fail(message)
   echohl ErrorMsg
   echo a:message
   echohl None
