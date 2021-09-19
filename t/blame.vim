@@ -346,6 +346,7 @@ describe ':G blame'
       \   'vimUserCmd': 'c',
       \   'vimIsCommand': 'G',
       \   'vimString': '"',
+      \   'vimStringEnd': '$',
       \   'vimComment': '#',
       \   'vimFuncKey': 'F',
       \   'vimFunction': 'f',
@@ -357,6 +358,7 @@ describe ':G blame'
       \   'vimNumber': '1',
       \   'vimOperParen': 'o',
       \   'vimUserFunc': 'U',
+      \   'vimOper': '!',
       \ }
       let stats = []
       for line in range(1, line('$'))
@@ -367,16 +369,20 @@ describe ':G blame'
         endfor
         call add(stats, join(stat, ''))
       endfor
+
+      " Note that this test is fragile. It might be broken whenever
+      " $VIMRUNTIME/syntax/vim.vim is updated. The following syntax
+      " highlighting summary is valid for Vim 8.2.3446.
       Expect stats ==# [
-      \   '====================================================.CCCCCCCccGcGGGGc"""',
+      \   '====================================================.CCCCCCC!cGcGGGGc""$',
       \   '====================================================.#################',
       \   '====================================================.FFFFFFFFfff((',
-      \   '====================================================bbbnnnnnnb"""',
+      \   '====================================================bbbnnnnnnb""$',
       \   '====================================================bmmmmmmmmmmm',
-      \   '====================================================.""""""""""{{{1',
-      \   '====================================================ooooooooooooooooo"""',
-      \   '====================================================oooooooooooU((',
-      \   '====================================================oooooooooo"""',
+      \   '====================================================."""""""""${{{1',
+      \   '====================================================oooooooo!oooooooo""$',
+      \   '====================================================ooooooooo!oU((',
+      \   '====================================================oooooooooo""$',
       \   '====================================================oooooooooooo',
       \ ]
     end
