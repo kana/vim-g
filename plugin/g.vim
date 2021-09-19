@@ -26,7 +26,7 @@ if exists('g:loaded_g')
   finish
 endif
 
-command! -bar -nargs=* G  call g#_cmd_G(<f-args>)
+command! -bar -nargs=* G call g#_cmd_G(<f-args>)
 
 let g:loaded_g = 1
 
