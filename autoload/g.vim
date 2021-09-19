@@ -32,6 +32,18 @@ function! g#_cmd_G(subcommand, ...)
   endif
 endfunction
 
+function! g#_cmd_G_complete(a, l, p)
+  let tokens = split(a:l, ' \+', v:true)
+  if len(tokens) >= 3
+    return []
+  endif
+
+  return filter([
+  \   'args',
+  \   'blame',
+  \ ], {_, val -> stridx(val, tokens[1]) == 0})
+endfunction
+
 function! g#_fail(message)
   echohl ErrorMsg
   echo a:message
