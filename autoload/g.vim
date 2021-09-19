@@ -21,17 +21,18 @@
 "     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
-function! g#_scope()  "{{{1
+
+function! g#_scope()
   return s:
 endfunction
 
-function! g#_sid()  "{{{1
+function! g#_sid()
   return maparg('<SID>', 'n')
 endfunction
 
-nnoremap <SID>  <SID>
+nnoremap <SID> <SID>
 
-function! g#_cmd_G(subcommand, ...)  "{{{1
+function! g#_cmd_G(subcommand, ...)
   if a:subcommand ==# 'blame'
     call s:blame()
   else
@@ -39,7 +40,7 @@ function! g#_cmd_G(subcommand, ...)  "{{{1
   endif
 endfunction
 
-function! s:blame()  "{{{1
+function! s:blame()
   if &l:buftype !=# ''
     return s:fail('g: Only a normal buffer can be blamed')
   endif
@@ -79,20 +80,20 @@ function! s:blame()  "{{{1
   call setpos('.', b:g_positions[b:g_undo_index])
   normal! zz
 
-  nnoremap <buffer> K  :<C-u>call <SID>blame_show_this_commit()<Return>
-  nnoremap <buffer> o  :<C-u>call <SID>blame_dig_into_older_one()<Return>
-  nnoremap <buffer> u  :<C-u>call <SID>blame_undo()<Return>
-  nnoremap <buffer> <C-r>  :<C-u>call <SID>blame_redo()<Return>
+  nnoremap <buffer> K :<C-u>call <SID>blame_show_this_commit()<CR>
+  nnoremap <buffer> o :<C-u>call <SID>blame_dig_into_older_one()<CR>
+  nnoremap <buffer> u :<C-u>call <SID>blame_undo()<CR>
+  nnoremap <buffer> <C-r> :<C-u>call <SID>blame_redo()<CR>
 endfunction
 
-function! s:blame_update_viewer_buffer_name() "{{{2
+function! s:blame_update_viewer_buffer_name()
   let commit_ish = b:g_commit_ishes[b:g_undo_index]
   let filepath = b:g_filepaths[b:g_undo_index]
   let commit_ish_label = commit_ish ==# 'HEAD' ? '' : commit_ish . ' '
   silent file `=printf('[git blame] %s%s', commit_ish_label, filepath)`
 endfunction
 
-function! s:blame_show_this_commit()  "{{{2
+function! s:blame_show_this_commit()
   let commit_id = matchstr(getline('.'), '\v^\^?\zs\x+')
   if commit_id == ''
     return s:fail('g: Cannot find the commit id for the current line')
@@ -105,7 +106,7 @@ function! s:.show(commit_id)
   execute '!git show' shellescape(a:commit_id)
 endfunction
 
-function! s:blame_dig_into_older_one()  "{{{2
+function! s:blame_dig_into_older_one()
   if getline('.') =~ '^\^'
     return s:fail('g: There is no content older than the root commit')
   endif
@@ -263,7 +264,7 @@ function! s:blame_guess_logical_cursor_position(diff, pos)
   return guessed_pos
 endfunction
 
-function! s:blame_undo()  "{{{2
+function! s:blame_undo()
   if b:g_undo_index == 0
     return
   endif
@@ -278,7 +279,7 @@ function! s:blame_undo()  "{{{2
   normal! zz
 endfunction
 
-function! s:blame_redo()  "{{{2
+function! s:blame_redo()
   if b:g_undo_index == len(b:g_filepaths) - 1
     return
   endif
@@ -293,7 +294,7 @@ function! s:blame_redo()  "{{{2
   normal! zz
 endfunction
 
-function! g#get_branch_name(dir)  "{{{1
+function! g#get_branch_name(dir)
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
   \  || cache_entry[1] !=# s:branch_name_cache_key(a:dir)
@@ -305,14 +306,14 @@ function! g#get_branch_name(dir)  "{{{1
   return cache_entry[0]
 endfunction
 
-" {[key: dir_path]: [branch_name, cache_key]}  "{{{2
+" {[key: dir_path]: [branch_name, cache_key]}
 let s:branch_name_cache = {}
 
-function! s:branch_name_cache_key(dir)  "{{{2
+function! s:branch_name_cache_key(dir)
   return getftime(a:dir . '/.git/HEAD') . getftime(a:dir . '/.git/MERGE_HEAD')
 endfunction
 
-function! s:get_branch_name_and_cache_key(dir)  "{{{2
+function! s:get_branch_name_and_cache_key(dir)
   let git_dir = a:dir . '/.git'
 
   if isdirectory(git_dir)
@@ -359,16 +360,16 @@ function! s:get_branch_name_and_cache_key(dir)  "{{{2
   return [branch_name, s:branch_name_cache_key(a:dir)]
 endfunction
 
-function! s:first_line(file)  "{{{2
+function! s:first_line(file)
   let lines = readfile(a:file, '', 1)
   return 1 <= len(lines) ? lines[0] : ''
 endfunction
 
-function! s:fail(message)  "{{{1
+function! s:fail(message)
   echohl ErrorMsg
   echo a:message
   echohl None
 endfunction
 
-" __END__  "{{{1
+" __END__
 " vim: foldmethod=marker
