@@ -18,7 +18,8 @@ describe 'g#get_branch_name'
 
   describe 'in a Git repository'
     before
-      !git init && touch foo && git add foo && git commit -m 'Initial commit'
+      !git init && git config user.name 'CI' && git config user.email 'ci@example.com'
+      !touch foo && git add foo && git commit -m 'Initial commit'
     end
 
     it 'returns the current branch'
