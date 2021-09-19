@@ -22,20 +22,26 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 
-function! g#_cmd_G(subcommand, ...)
-  if a:subcommand ==# 'args'
-    call g#args#_cli(a:000)
-  elseif a:subcommand ==# 'blame'
-    call g#blame#_cli()
-  else
-    call g#_fail('g: Unknown subcommand: ' . string(a:subcommand))
+function! g#args#_cli(patterns)
+  if len(a:patterns) == 0
+    return g#_fail('g: Specify at least one pattern.')
   endif
+
+  let shell_args = map(copy(a:patterns), {_, val -> s:normalize_pattern(val)})
+  let files = systemlist('git ls-files ' .. join(shell_args))
+  if len(files) == 0
+    return g#_fail('g: Nothing matched.')
+  endif
+
+  execute 'args' join(files)
 endfunction
 
-function! g#_fail(message)
-  echohl ErrorMsg
-  echo a:message
-  echohl None
+function! s:normalize_pattern(pattern)
+  if a:pattern =~# '^''.*''$'
+    return a:pattern
+  endif
+
+  return substitute(a:pattern, '\v^\*?(.{-})\*?$', '''*\1*''', '')
 endfunction
 
 " __END__
