@@ -27,10 +27,8 @@ function! g#blame#_scope()
 endfunction
 
 function! g#blame#_sid()
-  return maparg('<SID>', 'n')
+  return expand('<SID>')
 endfunction
-
-nnoremap <SID> <SID>
 
 function! g#blame#_cli()
   if &l:buftype !=# ''
