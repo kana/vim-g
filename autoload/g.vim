@@ -30,10 +30,6 @@ function! g#_cmd_G(subcommand, ...)
   endif
 endfunction
 
-function! g#get_branch_name(dir)
-  return g#branch#get_name(a:dir)
-endfunction
-
 function! g#fail(message)
   echohl ErrorMsg
   echo a:message
