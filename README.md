@@ -2,6 +2,22 @@
 
 This is a Vim plugin which provides misc. utilities for Git.
 
+## `:G args {pattern} [{pattern}...]`
+
+This command is basically an alias for the following command:
+
+```bash
+:args `git ls-files '*{pattern}*' ['*{pattern}*`...]`
+```
+
+If {pattern} is quoted with `'`, it is passed to `git ls-files` as is.
+
+Usage examples:
+
+- `G args 'tests/*.php'` for all PHP files under `tests/`.
+- `G args SomeComponent` for all files which paths includes `SomeComponent`.
+   Like all `*.ts` and `*.tsx` files under `components/SomeComponent/`.
+
 ## `:G blame`
 
 This command opens a Git blame viewer for the current buffer.
