@@ -77,7 +77,7 @@ COMMANDS					*g-commands*
                         message will be displayed. (If you directly use :args,
                         it creates a strangly named buffer in that situation.)
 
-:G blame					*:G-args*
+:G blame					*:G-blame*
                         Open a Git blame viewer for the current buffer.
 
                         The following shortcut keys are available in this
