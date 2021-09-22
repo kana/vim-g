@@ -29,6 +29,7 @@ Introduction            |g-introduction|
 Interface               |g-interface|
   Commands                |g-commands|
   Functions               |g-functions|
+Examples                |g-examples|
 Bugs                    |g-bugs|
 Changelog               |g-changelog|
 
@@ -116,6 +117,48 @@ g#branch#get_name({dir})			*g#branch#get_name()*
                         It detects detached HEAD state.  In that case, return
                         a special notation.  For example, `REBASE-i` in the
                         middle of `git rebase -i`.
+
+g#vc#add([{arg}...])				*g#vc#add()*
+                        Wrapper for `git add` to define custom key mappings to
+                        easily run that command.
+
+                        {arg}s are passed to Git as is.  Special characters in
+                        {arg}s are automatically escaped.
+
+g#vc#commit([{arg}...])				*g#vc#commit()*
+                        Open a new buffer to edit commit message.
+                        When the buffer is written (by |:w|, for example),
+                        run `git commit`, then close the buffer.
+
+g#vc#diff([{arg}...])				*g#vc#diff()*
+                        Run `git diff`, then open a new buffer to review its
+                        result.
+
+g#vc#restore([{arg}...])			*g#vc#restore()*
+                        Like |g#vc#add()|, but run `git restore` instead.
+
+
+
+
+==============================================================================
+EXAMPLES					*g-examples*
+
+Sample key mappings for frequent usage: >
+
+        " Stage the current file.
+	nnoremap <Leader>va <Cmd>call g#vc#add(expand('%'))<CR>
+
+        " Commit the current file.  No need to do git add.
+	nnoremap <Leader>vc <Cmd>call g#vc#commit('-v', expand('%'))<CR>
+
+        " Commit all modified files.  No need to do git add.
+	nnoremap <Leader>vC <Cmd>call g#vc#commit('-av')<CR>
+
+        " Revert unstaged changes in the current file.
+	nnoremap <Leader>vv <Cmd>call g#vc#restore(expand('%'))<CR>
+
+        " Show all uncomitted changes.
+	nnoremap <Leader>vD <Cmd>call g#vc#diff('HEAD', '--', '.')<CR>
 
 
 

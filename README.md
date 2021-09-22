@@ -32,6 +32,27 @@ example,
 - `master~100` if you intentionally did `git checkout master~100` to
   investigate a problem
 
+## `g#vc#add()` `g#vc#commit()` `g#vc#diff()` `g#vc#restore()`
+
+Wrappers for the corresponding Git subcommands.  Useful to define key mappings
+for frequent usage.  For example:
+
+```vim
+" Open a new buffer to edit commit message.
+" :write the buffer to commit all modified files.
+nnoremap <Leader>vC <Cmd>call g#vc#commit('-av')<CR>
+```
+
+```vim
+" Open a new buffer to review all uncomitted changes.
+nnoremap <Leader>vD <Cmd>call g#vc#diff('HEAD', '--', '.')<CR>
+```
+
+```vim
+" Revert unstaged changes in the current file.
+nnoremap <Leader>vv <Cmd>call g#vc#restore(expand('%'))<CR>
+```
+
 # Further reading
 
 See [doc/g.txt](./doc/g.txt).
