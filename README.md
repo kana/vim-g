@@ -2,15 +2,11 @@
 
 This is a Vim plugin which provides misc. utilities for Git.
 
+# Features
+
 ## `:G args {pattern} [{pattern}...]`
 
-This command is basically an alias for the following command:
-
-```bash
-:args `git ls-files '*{pattern}*' ['*{pattern}*`...]`
-```
-
-If {pattern} is quoted with `'`, it is passed to `git ls-files` as is.
+Like `:args`, but {pattern}s are interpreted by Git.
 
 Usage examples:
 
@@ -20,20 +16,22 @@ Usage examples:
 
 ## `:G blame`
 
-This command opens a Git blame viewer for the current buffer.
-The viewer provides the following keyboard shortcuts (defined in Normal mode):
+Open a Git blame viewer for the current buffer.
 
-| Keys   | Action                                                           |
-| ------ | ---------------------------------------------------------------- |
-| `K`    | `git show` the commit corresponding to the cursor line.          |
-| `o`    | View blame prior to the commit corresponding to the cursor line. |
-| `u`    | Undo `o`.                                                        |
-| `<C-r>`| Redo `o`.                                                        |
+You can dig into blame prior to the change on the cursor line by typing `o`,
+and rewind the state by typing `u`.
 
-## `g#branch#get_name()`
+## `g#branch#get_name({dir})`
 
-This function returns the name of the current "branch".  It detects detached
-HEAD state and returns special notation in that case.  For example, `REBASE-i`
-in the middle of `git rebase -i`.
+Return the current branch name.  Useful for options like `'tabline'`.
 
-Useful for `'tabline'`.
+It detects detached HEAD state and returns special notation in that case.  For
+example,
+
+- `REBASE-i` in the middle of `git rebase -i`
+- `master~100` if you intentionally did `git checkout master~100` to
+  investigate a problem
+
+# Further reading
+
+See [doc/g.txt](./doc/g.txt).
