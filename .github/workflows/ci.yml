@@ -26,4 +26,4 @@ jobs:
         vim_type: vim
         download: never # For some reason 'available' doesn't build from source as a fallback.
     - name: Run tests
-      run: bundle exec rake ci
+      run: rake ci
