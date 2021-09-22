@@ -42,7 +42,7 @@ This is a Vim plugin which provides misc. utilities for Git.
 
 
 Requirements:
-- Vim 8.0 or later
+- Vim 8.2.3446 or later
 
 Latest version:
 https://github.com/kana/vim-g
