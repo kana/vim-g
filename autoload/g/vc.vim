@@ -31,12 +31,12 @@ function! g#vc#add(...)
 endfunction
 
 function! g#vc#commit(...)
-  return s:open_command_buffer('commit', a:000)
+  return s:open_command_buffer('gitcommit', 'commit', a:000)
   \ && s:set_up_commit_on_write_hook(a:000)
 endfunction
 
 function! g#vc#diff(...)
-  return s:open_command_buffer('diff', a:000)
+  return s:open_command_buffer('diff', 'diff', a:000)
 endfunction
 
 function! g#vc#restore(...)
@@ -78,7 +78,7 @@ function! s:make_command_line(args)
   return join(map(['git'] + a:args, {_, s -> shellescape(s, v:true)}))
 endfunction
 
-function! s:open_command_buffer(subcommand, args)
+function! s:open_command_buffer(filetype, subcommand, args)
   " Memoize the information to restore the current state in case of errors in
   " the following steps.
   let winrestcmd = winrestcmd()
@@ -104,7 +104,7 @@ function! s:open_command_buffer(subcommand, args)
   silent file `=s:make_command_buffer_name(a:subcommand, a:args)`
   silent put =contents
   1 delete _
-  filetype detect
+  execute 'setfiletype' a:filetype
 
   return v:true
 endfunction
@@ -116,7 +116,6 @@ function! s:run_git(subcommand, args)
 endfunction
 
 function! s:set_up_commit_on_write_hook(args)
-  setfiletype gitcommit
   setlocal buftype=acwrite nomodified
   let b:g_vc_args = a:args
   autocmd BufWriteCmd <buffer> call s:write_hook()
