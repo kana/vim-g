@@ -176,6 +176,10 @@ BUGS						*g-bugs*
 ==============================================================================
 CHANGELOG					*g-changelog*
 
+1.1.0	2021-09-23T18:55:50+09:00		*g-changelog-1.1.0*
+        - Add |g#vc#add()|, |g#vc#commit()|, |g#vc#diff()| and
+          |g#vc#restore()|.
+
 1.0.0	2021-09-20T05:34:57+09:00		*g-changelog-1.0.0*
 	- Initial version.
 
