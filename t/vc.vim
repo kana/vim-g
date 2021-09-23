@@ -61,7 +61,14 @@ describe 'Public function'
       Expect trim(system('git diff --quiet; echo $?')) == '1'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '0'
 
-      Expect g#vc#add('foo') to_be_true
+      redir => log
+      silent let result = g#vc#add('foo')
+      redir END
+
+      Expect result to_be_true
+      Expect split(log, '\n') ==# [
+      \   'git add foo',
+      \ ]
 
       Expect trim(system('git diff --quiet; echo $?')) == '0'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '1'
@@ -316,7 +323,14 @@ describe 'Public function'
 
       Expect readfile('foo') == ['1']
 
-      Expect g#vc#restore('foo') to_be_true
+      redir => log
+      silent let result = g#vc#restore('foo')
+      redir END
+
+      Expect result to_be_true
+      Expect split(log, '\n') ==# [
+      \   'git restore foo',
+      \ ]
 
       Expect readfile('foo') == []
     end

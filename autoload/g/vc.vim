@@ -110,8 +110,14 @@ function! s:open_command_buffer(filetype, subcommand, args)
 endfunction
 
 function! s:run_git(subcommand, args)
-  execute '!' s:make_command_line([a:subcommand] + a:args)
+  echo 'git' a:subcommand join(a:args)
+  let output = system(s:make_command_line([a:subcommand] + a:args))
   let success = v:shell_error == 0
+  if !success
+    echohl ErrorMsg
+    echo trim(output)
+    echohl None
+  endif
   return success
 endfunction
 
