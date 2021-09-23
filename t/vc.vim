@@ -5,8 +5,8 @@ syntax enable
 
 runtime plugin/g.vim
 
-function! GetNormalizedDiff()
-  return map(getline(1, '$'), {_, s -> substitute(s, '\v<\x{7}>', 'XXXXXXX', 'g')})
+function! MaskCommitIds(lines)
+  return a:lines->map({_, s -> substitute(s, '\v<\x{7}>', 'XXXXXXX', 'g')})
 endfunction
 
 describe 'Private function'
@@ -35,7 +35,7 @@ describe 'Private function'
 
   describe 's:make_command_line()'
     it 'automtaically escapes arguments'
-      Expect Call('s:make_command_line', 'add', ['normal.path', 'path with spaces', '%weird#path!'])
+      Expect Call('s:make_command_line', ['add', 'normal.path', 'path with spaces', '%weird#path!'])
       \ ==# "'git' 'add' 'normal.path' 'path with spaces' '\\%weird\\#path\\!'"
     end
   end
@@ -67,6 +67,132 @@ describe 'Public function'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '1'
     end
   end
+
+  describe 'g#vc#commit()'
+    it 'effectively does nothing if there are no changes to commit'
+      redir => log
+      silent let result = g#vc#commit('-a')
+      redir END
+
+      Expect result to_be_false
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 1
+
+      Expect split(log, '\n') ==# [
+      \   'There are no changes.',
+      \ ]
+    end
+
+    it 'opens a new buffer to edit commit message'
+      """ Set up.
+
+      !echo 'staged' >>foo
+      !git add foo
+      !echo 'unstaged' >>foo
+
+      """ Open a new buffer.
+
+      redir => log
+      silent let result = g#vc#commit('-v')
+      redir END
+
+      Expect result to_be_true
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 2
+
+      Expect bufname('%') ==# 'git commit -v'
+      Expect &l:filetype ==# 'gitcommit'
+
+      " The following messages are actually suppressed.
+      Expect split(log, '\n') ==# [
+      \   '"git commit -v"  --No lines in buffer--',
+      \   '20 more lines',
+      \ ]
+
+      Expect getline(1, '$')->MaskCommitIds() ==# [
+      \   "",
+      \   "# Please enter the commit message for your changes. Lines starting",
+      \   "# with '#' will be ignored, and an empty message aborts the commit.",
+      \   "#",
+      \   "# On branch master",
+      \   "# Changes to be committed:",
+      \   "#\tmodified:   foo",
+      \   "#",
+      \   "# Changes not staged for commit:",
+      \   "#\tmodified:   foo",
+      \   "#",
+      \   "# ------------------------ >8 ------------------------",
+      \   "# Do not modify or remove the line above.",
+      \   "# Everything below it will be ignored.",
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -0,0 +1 @@",
+      \   "+staged"
+      \ ]
+
+      Expect systemlist('git log --oneline')->len() == 1
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Initial commit",
+      \   "diff --git a/foo b/foo",
+      \   "new file mode 100644",
+      \   "index XXXXXXX..XXXXXXX",
+      \ ]
+
+      """ This :write fails because of empty commit message.
+
+      redir => log
+      write
+      redir END
+
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 2
+
+      " The following :write message is actually suppressed.
+      Expect split(log, '\n') ==# [
+      \   '".git/COMMIT_EDITMSG" 20L, 488B written',
+      \ ]
+
+      Expect systemlist('git log --oneline')->len() == 1
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Initial commit",
+      \   "diff --git a/foo b/foo",
+      \   "new file mode 100644",
+      \   "index XXXXXXX..XXXXXXX"
+      \ ]
+
+      " This :write succeeds and creates a new commit.
+
+      redir => log
+      0 put ='Some commit message'
+      write
+      redir END
+
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 1
+
+      " The following :write message is actually suppressed.
+      " Other messages are visible to users.
+      Expect split(log, '\n')->MaskCommitIds() ==# [
+      \   "\".git/COMMIT_EDITMSG\" 21L, 508B written",
+      \   "[master XXXXXXX] Some commit message",
+      \   " 1 file changed, 1 insertion(+)"
+      \ ]
+
+      Expect systemlist('git log --oneline')->len() == 2
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Some commit message",
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -0,0 +1 @@",
+      \   "+staged"
+      \ ]
+    end
+  end
+
 
   describe 'g#vc#diff()'
     context 'without changes'
@@ -111,7 +237,7 @@ describe 'Public function'
         \   '7 more lines',
         \ ]
 
-        Expect GetNormalizedDiff() ==# [
+        Expect getline(1, '$')->MaskCommitIds() ==# [
         \   'diff --git a/foo b/foo',
         \   'index XXXXXXX..XXXXXXX 100644',
         \   '--- a/foo',
@@ -141,7 +267,7 @@ describe 'Public function'
         \   '6 more lines',
         \ ]
 
-        Expect GetNormalizedDiff() ==# [
+        Expect getline(1, '$')->MaskCommitIds() ==# [
         \   'diff --git a/foo b/foo',
         \   'index XXXXXXX..XXXXXXX 100644',
         \   '--- a/foo',
@@ -170,7 +296,7 @@ describe 'Public function'
         \   '7 more lines',
         \ ]
 
-        Expect GetNormalizedDiff() ==# [
+        Expect getline(1, '$')->MaskCommitIds() ==# [
         \   'diff --git a/foo b/foo',
         \   'index XXXXXXX..XXXXXXX 100644',
         \   '--- a/foo',

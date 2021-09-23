@@ -30,6 +30,11 @@ function! g#vc#add(...)
   return s:run_git('add', a:000)
 endfunction
 
+function! g#vc#commit(...)
+  return s:open_command_buffer('commit', a:000)
+  \ && s:set_up_commit_on_write_hook(a:000)
+endfunction
+
 function! g#vc#diff(...)
   return s:open_command_buffer('diff', a:000)
 endfunction
@@ -39,7 +44,22 @@ function! g#vc#restore(...)
 endfunction
 
 function! s:fetch_command_buffer_contents(subcommand, args)
-  return systemlist(s:make_command_line(a:subcommand, a:args))
+  if a:subcommand ==# 'commit'
+    call system(s:make_command_line(['commit', '--dry-run'] + a:args))
+    if v:shell_error != 0
+      return []
+    endif
+    call system(s:make_command_line(['-c', 'core.editor=false', 'commit'] + a:args))
+    return readfile(s:get_git_dir() .. '/COMMIT_EDITMSG')
+  elseif a:subcommand ==# 'diff'
+    return systemlist(s:make_command_line(['diff'] + a:args))
+  else
+    throw 'unreachable'
+  endif
+endfunction
+
+function! s:get_git_dir()
+  return trim(system('git rev-parse --git-dir'))
 endfunction
 
 function! s:make_command_buffer_name(subcommand, args)
@@ -54,8 +74,8 @@ function! s:make_command_buffer_name(subcommand, args)
   endwhile
 endfunction
 
-function! s:make_command_line(subcommand, args)
-  return join(map(['git', a:subcommand] + a:args, {_, s -> shellescape(s, v:true)}))
+function! s:make_command_line(args)
+  return join(map(['git'] + a:args, {_, s -> shellescape(s, v:true)}))
 endfunction
 
 function! s:open_command_buffer(subcommand, args)
@@ -81,7 +101,6 @@ function! s:open_command_buffer(subcommand, args)
 
   " Initialize the command buffer.
   setlocal bufhidden=wipe buftype=nofile noswapfile
-  let b:g_vc_args = a:args
   silent file `=s:make_command_buffer_name(a:subcommand, a:args)`
   silent put =contents
   1 delete _
@@ -91,14 +110,29 @@ function! s:open_command_buffer(subcommand, args)
 endfunction
 
 function! s:run_git(subcommand, args)
-  let autowrite = &autowrite
-  set noautowrite  " to avoid E676 for s:finish_commit().
-
-  execute '!' s:make_command_line(a:subcommand, a:args)
+  execute '!' s:make_command_line([a:subcommand] + a:args)
   let success = v:shell_error == 0
-
-  let &autowrite = autowrite
   return success
+endfunction
+
+function! s:set_up_commit_on_write_hook(args)
+  setfiletype gitcommit
+  setlocal buftype=acwrite nomodified
+  let b:g_vc_args = a:args
+  autocmd BufWriteCmd <buffer> call s:write_hook()
+  return v:true
+endfunction
+
+function! s:write_hook()
+  let commit_editmsg_path = s:get_git_dir() .. '/COMMIT_EDITMSG'
+  silent write! `=commit_editmsg_path`
+  echo (['commit', '-F', commit_editmsg_path, '--cleanup=strip'] + b:g_vc_args)
+  \    ->s:make_command_line()->system()->trim()
+  if v:shell_error
+    return
+  endif
+
+  bwipeout!
 endfunction
 
 " __END__
