@@ -1,5 +1,5 @@
 " g - Misc. Git utilities
-" Version: 1.0.0
+" Version: 1.1.0
 " Copyright (C) 2018-2021 Kana Natsuno <https://whileimautomaton.net/>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
