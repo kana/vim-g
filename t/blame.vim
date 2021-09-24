@@ -5,9 +5,6 @@ syntax enable
 
 runtime plugin/g.vim
 
-" For some reason 'shellredir' is set to '>' while running tests.
-set shellredir=>%s\ 2>&1
-
 " Avoid unexpectedly changes on window height.
 set noequalalways
 
