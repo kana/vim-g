@@ -152,6 +152,7 @@ describe 'Public function'
       " The following :write message is actually suppressed.
       Expect split(log, '\n') ==# [
       \   '".git/COMMIT_EDITMSG" 20L, 488B written',
+      \   'Aborting commit due to empty commit message.',
       \ ]
 
       Expect systemlist('git log --oneline')->len() == 1
