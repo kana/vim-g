@@ -73,6 +73,20 @@ describe 'Public function'
       Expect trim(system('git diff --quiet; echo $?')) == '0'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '1'
     end
+
+    it 'shows a message in case of error'
+      redir => log
+      silent let result = g#vc#add('no-such-file')
+      redir END
+
+      Expect result to_be_false
+      Expect split(log, '\n') ==# [
+      \   'git add no-such-file',
+      \   'fatal: pathspec ''no-such-file'' did not match any files',
+      \ ]
+
+      Expect trim(system('git diff --quiet HEAD; echo $?')) == '0'
+    end
   end
 
   describe 'g#vc#commit()'
@@ -333,6 +347,20 @@ describe 'Public function'
       \ ]
 
       Expect readfile('foo') == []
+    end
+
+    it 'shows a message in case of error'
+      redir => log
+      silent let result = g#vc#restore('no-such-file')
+      redir END
+
+      Expect result to_be_false
+      Expect split(log, '\n') ==# [
+      \   'git restore no-such-file',
+      \   'error: pathspec ''no-such-file'' did not match any file(s) known to git',
+      \ ]
+
+      Expect trim(system('git diff --quiet HEAD; echo $?')) == '0'
     end
   end
 end
