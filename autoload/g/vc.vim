@@ -110,8 +110,14 @@ function! s:open_command_buffer(filetype, subcommand, args)
 endfunction
 
 function! s:run_git(subcommand, args)
-  execute '!' s:make_command_line([a:subcommand] + a:args)
+  echo 'git' a:subcommand join(a:args)
+  let output = system(s:make_command_line([a:subcommand] + a:args))
   let success = v:shell_error == 0
+  if !success
+    echohl ErrorMsg
+    echo trim(output)
+    echohl None
+  endif
   return success
 endfunction
 
@@ -123,14 +129,25 @@ function! s:set_up_commit_on_write_hook(args)
 endfunction
 
 function! s:write_hook()
-  let commit_editmsg_path = s:get_git_dir() .. '/COMMIT_EDITMSG'
-  silent write! `=commit_editmsg_path`
-  echo (['commit', '-F', commit_editmsg_path, '--cleanup=strip'] + b:g_vc_args)
-  \    ->s:make_command_line()->system()->trim()
+  let file = s:get_git_dir() .. '/COMMIT_EDITMSG'
+  silent write! `=file`
+  let lines = (['commit', '-F', file, '--cleanup=strip'] + b:g_vc_args)
+  \           ->s:make_command_line()->systemlist()
   if v:shell_error
+    echohl ErrorMsg
+    echo join(lines, "\n")
+    echohl None
     return
   endif
 
+  " git commit typically shows the following message after successful commit:
+  "
+  "     [{branch-name} {commit-id}] {commit-message}
+  "      Date: {author-date}
+  "      {L} file changed, {M} insertions(+), {N} deletions(-)
+  "
+  " Date line appears if --amend is used.
+  echo lines[-1]
   bwipeout!
 endfunction
 

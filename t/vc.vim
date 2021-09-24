@@ -61,10 +61,31 @@ describe 'Public function'
       Expect trim(system('git diff --quiet; echo $?')) == '1'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '0'
 
-      Expect g#vc#add('foo') to_be_true
+      redir => log
+      silent let result = g#vc#add('foo')
+      redir END
+
+      Expect result to_be_true
+      Expect split(log, '\n') ==# [
+      \   'git add foo',
+      \ ]
 
       Expect trim(system('git diff --quiet; echo $?')) == '0'
       Expect trim(system('git diff --quiet --staged; echo $?')) == '1'
+    end
+
+    it 'shows a message in case of error'
+      redir => log
+      silent let result = g#vc#add('no-such-file')
+      redir END
+
+      Expect result to_be_false
+      Expect split(log, '\n') ==# [
+      \   'git add no-such-file',
+      \   'fatal: pathspec ''no-such-file'' did not match any files',
+      \ ]
+
+      Expect trim(system('git diff --quiet HEAD; echo $?')) == '0'
     end
   end
 
@@ -177,7 +198,6 @@ describe 'Public function'
       " Other messages are visible to users.
       Expect split(log, '\n')->MaskCommitIds() ==# [
       \   "\".git/COMMIT_EDITMSG\" 21L, 508B written",
-      \   "[master XXXXXXX] Some commit message",
       \   " 1 file changed, 1 insertion(+)"
       \ ]
 
@@ -316,9 +336,30 @@ describe 'Public function'
 
       Expect readfile('foo') == ['1']
 
-      Expect g#vc#restore('foo') to_be_true
+      redir => log
+      silent let result = g#vc#restore('foo')
+      redir END
+
+      Expect result to_be_true
+      Expect split(log, '\n') ==# [
+      \   'git restore foo',
+      \ ]
 
       Expect readfile('foo') == []
+    end
+
+    it 'shows a message in case of error'
+      redir => log
+      silent let result = g#vc#restore('no-such-file')
+      redir END
+
+      Expect result to_be_false
+      Expect split(log, '\n') ==# [
+      \   'git restore no-such-file',
+      \   'error: pathspec ''no-such-file'' did not match any file(s) known to git',
+      \ ]
+
+      Expect trim(system('git diff --quiet HEAD; echo $?')) == '0'
     end
   end
 end
