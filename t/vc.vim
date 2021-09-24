@@ -198,7 +198,6 @@ describe 'Public function'
       " Other messages are visible to users.
       Expect split(log, '\n')->MaskCommitIds() ==# [
       \   "\".git/COMMIT_EDITMSG\" 21L, 508B written",
-      \   "[master XXXXXXX] Some commit message",
       \   " 1 file changed, 1 insertion(+)"
       \ ]
 
