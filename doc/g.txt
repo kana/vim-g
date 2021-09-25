@@ -28,6 +28,7 @@ Introduction                    |g-introduction|
 Interface                       |g-interface|
   Commands                        |g-commands|
   Functions                       |g-functions|
+  Variables                       |g-variables|
 Examples                        |g-examples|
 Bugs                            |g-bugs|
 Changelog                       |g-changelog|
@@ -130,6 +131,20 @@ g#vc#diff([{arg}...])                                            *g#vc#diff()*
 
 g#vc#restore([{arg}...])                                      *g#vc#restore()*
         Like |g#vc#add()|, but run `git restore` instead.
+
+
+------------------------------------------------------------------------------
+VARIABLES                                                        *g-variables*
+
+                                                       *g:g_vc_split_modifier*
+g:g_vc_split_modifier		string (default: "")
+        Some functions, like |g#vc#commit()|, open a new window.  A new window
+        is opened above the current window by default (unless 'splitbelow' is
+        not set).  Use this variable to customize how to open a new window.
+
+        Example: Open a new window vertically. >
+
+                let g:g_vc_split_modifier = 'vertical'
 
 
 
