@@ -12,7 +12,7 @@ endfunction
 describe 'Private function'
   describe 's:make_command_buffer_name()'
     after
-      windo bwipeout!
+       %bwipeout!
     end
 
     it 'makes a buffer name based on its arguments'
@@ -51,7 +51,7 @@ describe 'Public function'
 
   after
     cd -
-    windo bwipeout
+    %bwipeout
   end
 
   describe 'g#vc#add()'
@@ -91,6 +91,8 @@ describe 'Public function'
 
   describe 'g#vc#commit()'
     it 'effectively does nothing if there are no changes to commit'
+      let bufnr = bufnr()
+
       redir => log
       silent let result = g#vc#commit('-a')
       redir END
@@ -98,9 +100,18 @@ describe 'Public function'
       Expect result to_be_false
       Expect tabpagenr('$') == 1
       Expect winnr('$') == 1
+      Expect bufnr() == bufnr
 
       Expect split(log, '\n') ==# [
       \   'There are no changes.',
+      \ ]
+
+      Expect systemlist('git log --oneline')->len() == 1
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Initial commit",
+      \   "diff --git a/foo b/foo",
+      \   "new file mode 100644",
+      \   "index XXXXXXX..XXXXXXX",
       \ ]
     end
 
@@ -113,6 +124,8 @@ describe 'Public function'
 
       """ Open a new buffer.
 
+      let bufnr = bufnr()
+
       redir => log
       silent let result = g#vc#commit('-v')
       redir END
@@ -120,7 +133,7 @@ describe 'Public function'
       Expect result to_be_true
       Expect tabpagenr('$') == 1
       Expect winnr('$') == 2
-
+      Expect bufnr() != bufnr
       Expect bufname('%') ==# 'git commit -v'
       Expect &l:filetype ==# 'gitcommit'
 
@@ -170,7 +183,7 @@ describe 'Public function'
       Expect tabpagenr('$') == 1
       Expect winnr('$') == 2
 
-      " The following :write message is actually suppressed.
+      " The "written" message is actually suppressed.
       Expect split(log, '\n') ==# [
       \   '".git/COMMIT_EDITMSG" 20L, 488B written',
       \   'Aborting commit due to empty commit message.',
@@ -193,9 +206,9 @@ describe 'Public function'
 
       Expect tabpagenr('$') == 1
       Expect winnr('$') == 1
+      Expect bufnr() == bufnr
 
-      " The following :write message is actually suppressed.
-      " Other messages are visible to users.
+      " The "written" message is actually suppressed.
       Expect split(log, '\n')->MaskCommitIds() ==# [
       \   "\".git/COMMIT_EDITMSG\" 21L, 508B written",
       \   " 1 file changed, 1 insertion(+)"
@@ -212,12 +225,64 @@ describe 'Public function'
       \   "+staged"
       \ ]
     end
+
+    it 'warns and prevents an attempt of empty commit'
+      !echo 'modified' >foo && git commit -am 'Modified' && rm foo && touch foo
+
+      let bufnr = bufnr()
+
+      redir => log
+      silent let result = g#vc#commit('--amend', '-av')
+      redir END
+
+      Expect result to_be_false
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 1
+      Expect bufnr() == bufnr
+
+      " Git might show a hint about empty commit like the following:
+      "
+      "     On branch master
+      "     No changes
+      "     You asked to amend the most recent commit, but doing so would make
+      "     it empty. You can repeat your command with --allow-empty, or you can
+      "     remove the commit entirely with "git reset HEAD^"."
+      "
+      " It would be better to display this message as is.  But this message is
+      " not displayed if --dry-run is specified.  So that only the following
+      " message is actually displayed at the moment.
+      Expect split(log, '\n') ==# [
+      \   'There are no changes.',
+      \ ]
+
+      " The last change is still not committed.
+      Expect systemlist('git diff HEAD')->MaskCommitIds() ==# [
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -1 +0,0 @@",
+      \   "-modified"
+      \ ]
+      Expect systemlist('git log --oneline')->len() == 2
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Modified",
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -0,0 +1 @@",
+      \   "+modified"
+      \ ]
+    end
   end
 
 
   describe 'g#vc#diff()'
     context 'without changes'
       it 'effectively does nothing if there are no changes'
+        let bufnr = bufnr()
+
         redir => log
         silent let result = g#vc#diff('HEAD', '--', '.')
         redir END
@@ -225,6 +290,7 @@ describe 'Public function'
         Expect result == v:false
         Expect tabpagenr('$') == 1
         Expect winnr('$') == 1
+        Expect bufnr() == bufnr
 
         Expect split(log, '\n') ==# [
         \   'There are no changes.',
@@ -240,6 +306,8 @@ describe 'Public function'
       end
 
       it 'opens a new buffer to review both staged and unstaged changes'
+        let bufnr = bufnr()
+
         redir => log
         silent let result = g#vc#diff('HEAD', '--', '.')
         redir END
@@ -247,7 +315,7 @@ describe 'Public function'
         Expect result == v:true
         Expect tabpagenr('$') == 1
         Expect winnr('$') == 2
-
+        Expect bufnr() != bufnr
         Expect bufname('%') ==# 'git diff HEAD -- .'
         Expect &l:filetype ==# 'diff'
 
@@ -270,6 +338,8 @@ describe 'Public function'
       end
 
       it 'opens a new buffer to review staged changes'
+        let bufnr = bufnr()
+
         redir => log
         silent let result = g#vc#diff('--staged', '--', '.')
         redir END
@@ -277,7 +347,7 @@ describe 'Public function'
         Expect result == v:true
         Expect tabpagenr('$') == 1
         Expect winnr('$') == 2
-
+        Expect bufnr() != bufnr
         Expect bufname('%') ==# 'git diff --staged -- .'
         Expect &l:filetype ==# 'diff'
 
@@ -299,6 +369,8 @@ describe 'Public function'
       end
 
       it 'opens a new buffer to review unstaged changes'
+        let bufnr = bufnr()
+
         redir => log
         silent let result = g#vc#diff('--', '.')
         redir END
@@ -306,7 +378,7 @@ describe 'Public function'
         Expect result == v:true
         Expect tabpagenr('$') == 1
         Expect winnr('$') == 2
-
+        Expect bufnr() != bufnr
         Expect bufname('%') ==# 'git diff -- .'
         Expect &l:filetype ==# 'diff'
 
