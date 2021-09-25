@@ -90,6 +90,10 @@ describe 'Public function'
   end
 
   describe 'g#vc#commit()'
+    after
+      silent! unlet g:g_vc_split_modifier
+    end
+
     it 'effectively does nothing if there are no changes to commit'
       let bufnr = bufnr()
 
@@ -275,8 +279,53 @@ describe 'Public function'
       \   "+modified"
       \ ]
     end
-  end
 
+    it 'opens a new window according to g:g_vc_split_modifier'
+      !echo 'modified' >foo
+
+      let bufnr = bufnr()
+      let winid = win_getid()
+
+      Expect winlayout() ==# ['leaf', winid]
+
+      """ Open a new window with the default setting.
+
+      silent let result = g#vc#commit('-a')
+
+      Expect result to_be_true
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 2
+      Expect bufnr() != bufnr
+
+      Expect bufwinid('') != winid
+      Expect winlayout() ==# ['col', [['leaf', bufwinid('')], ['leaf', winid]]]
+
+      """ Undo the layout.
+
+      close
+
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 1
+      Expect bufnr() == bufnr
+
+      Expect bufwinid('') == winid
+      Expect winlayout() ==# ['leaf', winid]
+
+      """ Open a new window with a tweaked setting.
+
+      let g:g_vc_split_modifier = 'vertical'
+
+      silent let result = g#vc#commit('-a')
+
+      Expect result to_be_true
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 2
+      Expect bufnr() != bufnr
+
+      Expect bufwinid('') != winid
+      Expect winlayout() ==# ['row', [['leaf', bufwinid('')], ['leaf', winid]]]
+    end
+  end
 
   describe 'g#vc#diff()'
     context 'without changes'
@@ -303,6 +352,10 @@ describe 'Public function'
         !echo 'staged' >>foo
         !git add foo
         !echo 'unstaged' >>foo
+      end
+
+      after
+        silent! unlet g:g_vc_split_modifier
       end
 
       it 'opens a new buffer to review both staged and unstaged changes'
@@ -398,6 +451,52 @@ describe 'Public function'
         \   ' staged',
         \   '+unstaged',
         \ ]
+      end
+
+      it 'opens a new window according to g:g_vc_split_modifier'
+        !echo 'modified' >foo
+
+        let bufnr = bufnr()
+        let winid = win_getid()
+
+        Expect winlayout() ==# ['leaf', winid]
+
+        """ Open a new window with the default setting.
+
+        silent let result = g#vc#diff()
+
+        Expect !!result to_be_true
+        Expect tabpagenr('$') == 1
+        Expect winnr('$') == 2
+        Expect bufnr() != bufnr
+
+        Expect bufwinid('') != winid
+        Expect winlayout() ==# ['col', [['leaf', bufwinid('')], ['leaf', winid]]]
+
+        """ Undo the layout.
+
+        close
+
+        Expect tabpagenr('$') == 1
+        Expect winnr('$') == 1
+        Expect bufnr() == bufnr
+
+        Expect bufwinid('') == winid
+        Expect winlayout() ==# ['leaf', winid]
+
+        """ Open a new window with a tweaked setting.
+
+        let g:g_vc_split_modifier = 'vertical'
+
+        silent let result = g#vc#diff()
+
+        Expect !!result to_be_true
+        Expect tabpagenr('$') == 1
+        Expect winnr('$') == 2
+        Expect bufnr() != bufnr
+
+        Expect bufwinid('') != winid
+        Expect winlayout() ==# ['row', [['leaf', bufwinid('')], ['leaf', winid]]]
       end
     end
   end

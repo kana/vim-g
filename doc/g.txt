@@ -1,5 +1,4 @@
-*g.txt*	{abstract}
-
+*g.txt*                 Misc. Git utilities
 Version 1.1.0
 Copyright (C) 2018-2021 Kana Natsuno <https://whileimautomaton.net/>
 License: MIT license  {{{
@@ -23,21 +22,22 @@ License: MIT license  {{{
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }}}
 
-CONTENTS					*g-contents*
+CONTENTS                                                          *g-contents*
 
-Introduction            |g-introduction|
-Interface               |g-interface|
-  Commands                |g-commands|
-  Functions               |g-functions|
-Examples                |g-examples|
-Bugs                    |g-bugs|
-Changelog               |g-changelog|
+Introduction                    |g-introduction|
+Interface                       |g-interface|
+  Commands                        |g-commands|
+  Functions                       |g-functions|
+  Variables                       |g-variables|
+Examples                        |g-examples|
+Bugs                            |g-bugs|
+Changelog                       |g-changelog|
 
 
 
 
 ==============================================================================
-INTRODUCTION					*g-introduction*
+INTRODUCTION                                                  *g-introduction*
 
 This is a Vim plugin which provides misc. utilities for Git.
 
@@ -52,136 +52,145 @@ https://github.com/kana/vim-g
 
 
 ==============================================================================
-INTERFACE					*g-interface*
+INTERFACE                                                        *g-interface*
 
 ------------------------------------------------------------------------------
-COMMANDS					*g-commands*
+COMMANDS                                                          *g-commands*
 
-:G args {pattern} [{pattern}...]		*:G-args*
-                        This command is similar to |:args|, but {pattern}s are
-                        interpreted by Git.  So that it's useful to quickly
-                        list and edit a set of specific files in a repository.
+:G args {pattern} [{pattern}...]                                     *:G-args*
+        This command is similar to |:args|, but {pattern}s are interpreted by
+        Git.  So that it's useful to quickly list and edit a set of specific
+        files in a repository.
 
-                        For convenience, {pattern} will be surrounded by `*`
-                        then passed to Git.  {pattern} quoted with `'` will be
-                        passed as is.
+        For convenience, {pattern} will be surrounded by `*` then passed to
+        Git.  {pattern} quoted with `'` will be passed as is.
 
-                        For example, the following commands are equivalent:
+        For example, the following commands are equivalent:
 >
-                        :G args SomeComponent
-                        :args `git ls-files '*SomeComponent*'
+        :G args SomeComponent
+        :args `git ls-files '*SomeComponent*'
 
-                        :G args 'tests/*.php'
-                        :args `git ls-files 'tests/*.php'
+        :G args 'tests/*.php'
+        :args `git ls-files 'tests/*.php'
 <
-                        If all {pattern}s don't match anything, an error
-                        message will be displayed. (If you directly use :args,
-                        it creates a strangly named buffer in that situation.)
+        If all {pattern}s don't match anything, an error message will be
+        displayed. (If you directly use :args, it creates a strangly named
+        buffer in that situation.)
 
-:G blame					*:G-blame*
-                        Open a Git blame viewer for the current buffer.
+:G blame                                                            *:G-blame*
+        Open a Git blame viewer for the current buffer.
 
-                        The following shortcut keys are available in this
-                        viwer. (All key mappings are defined in Normal mode)
+        The following shortcut keys are available in this viwer. (All key
+        mappings are defined in Normal mode)
 
-                        K
-                                Like the default |K|, but run `git show` for
-                                the commit corresponding to the cursor line.
+        K
+                Like the default |K|, but run `git show` for the commit
+                corresponding to the cursor line.
 
-                        o
-                                View blame prior to the commit corresponding
-                                to the cursor line.
+        o
+                View blame prior to the commit corresponding to the cursor
+                line.
 
-                                The content of the viwer will replaced with
-                                that blame.  The cursor will be kept at the
-                                "logically" same line.  In other words, the
-                                cursor will be moved to the line which was
-                                changed by the commit.
+                The content of the viwer will replaced with that blame.  The
+                cursor will be kept at the "logically" same line.  In other
+                words, the cursor will be moved to the line which was changed
+                by the commit.
 
-                        u
-                                Undo `o`.
+        u
+                Undo `o`.
 
-                        <C-r>
-                                Redo `o`.
+        <C-r>
+                Redo `o`.
 
 
 ------------------------------------------------------------------------------
-FUNCTIONS					*g-functions*
+FUNCTIONS                                                        *g-functions*
 
-g#branch#get_name({dir})			*g#branch#get_name()*
-                        Return the current branch name of {dir}.  It is Useful
-                        for options like 'tabline'.
+g#branch#get_name({dir})                                 *g#branch#get_name()*
+        Return the current branch name of {dir}.  It is Useful for options
+        like 'tabline'.
 
-                        If {dir} is not a Git repository, return `-` instead.
+        If {dir} is not a Git repository, return `-` instead.
 
-                        It detects detached HEAD state.  In that case, return
-                        a special notation.  For example, `REBASE-i` in the
-                        middle of `git rebase -i`.
+        It detects detached HEAD state.  In that case, return a special
+        notation.  For example, `REBASE-i` in the middle of `git rebase -i`.
 
-g#vc#add([{arg}...])				*g#vc#add()*
-                        Wrapper for `git add` to define custom key mappings to
-                        easily run that command.
+g#vc#add([{arg}...])                                              *g#vc#add()*
+        Wrapper for `git add` to define custom key mappings to easily run that
+        command.
 
-                        {arg}s are passed to Git as is.  Special characters in
-                        {arg}s are automatically escaped.
+        {arg}s are passed to Git as is.  Special characters in {arg}s are
+        automatically escaped.
 
-g#vc#commit([{arg}...])				*g#vc#commit()*
-                        Open a new buffer to edit commit message.
-                        When the buffer is written (by |:w|, for example),
-                        run `git commit`, then close the buffer.
+g#vc#commit([{arg}...])                                        *g#vc#commit()*
+        Open a new buffer to edit commit message.  When the buffer is written
+        (by |:w|, for example), run `git commit`, then close the buffer.
 
-g#vc#diff([{arg}...])				*g#vc#diff()*
-                        Run `git diff`, then open a new buffer to review its
-                        result.
+g#vc#diff([{arg}...])                                            *g#vc#diff()*
+        Run `git diff`, then open a new buffer to review its result.
 
-g#vc#restore([{arg}...])			*g#vc#restore()*
-                        Like |g#vc#add()|, but run `git restore` instead.
+g#vc#restore([{arg}...])                                      *g#vc#restore()*
+        Like |g#vc#add()|, but run `git restore` instead.
+
+
+------------------------------------------------------------------------------
+VARIABLES                                                        *g-variables*
+
+                                                       *g:g_vc_split_modifier*
+g:g_vc_split_modifier		string (default: "")
+        Some functions, like |g#vc#commit()|, open a new window.  A new window
+        is opened above the current window by default (unless 'splitbelow' is
+        not set).  Use this variable to customize how to open a new window.
+
+        Example: Open a new window vertically. >
+
+                let g:g_vc_split_modifier = 'vertical'
 
 
 
 
 ==============================================================================
-EXAMPLES					*g-examples*
+EXAMPLES                                                          *g-examples*
 
 Sample key mappings for frequent usage: >
 
         " Stage the current file.
-	nnoremap <Leader>va <Cmd>call g#vc#add(expand('%'))<CR>
+        nnoremap <Leader>va <Cmd>call g#vc#add(expand('%'))<CR>
 
         " Commit the current file.  No need to do git add.
-	nnoremap <Leader>vc <Cmd>call g#vc#commit('-v', expand('%'))<CR>
+        nnoremap <Leader>vc <Cmd>call g#vc#commit('-v', expand('%'))<CR>
 
         " Commit all modified files.  No need to do git add.
-	nnoremap <Leader>vC <Cmd>call g#vc#commit('-av')<CR>
+        nnoremap <Leader>vC <Cmd>call g#vc#commit('-av')<CR>
 
         " Revert unstaged changes in the current file.
-	nnoremap <Leader>vv <Cmd>call g#vc#restore(expand('%'))<CR>
+        nnoremap <Leader>vv <Cmd>call g#vc#restore(expand('%'))<CR>
 
         " Show all uncomitted changes.
-	nnoremap <Leader>vD <Cmd>call g#vc#diff('HEAD', '--', '.')<CR>
+        nnoremap <Leader>vD <Cmd>call g#vc#diff('HEAD', '--', '.')<CR>
 
 
 
 
 ==============================================================================
-BUGS						*g-bugs*
+BUGS                                                                  *g-bugs*
 
-- When typing `o` in `:G blame` viwer, it tries to keep the cursor at the
-  logically same line, but it sometimes failed.  So that the cursor might be
-  moved to unexpected position.
+(a) When typing `o` in `:G blame` viwer, it tries to keep the cursor at the
+    logically same line, but it sometimes failed.  So that the cursor might be
+    moved to unexpected position.
 
 
 
 
 ==============================================================================
-CHANGELOG					*g-changelog*
+CHANGELOG                                                        *g-changelog*
 
-1.1.0	2021-09-23T18:55:50+09:00		*g-changelog-1.1.0*
+1.1.0   2021-09-23T18:55:50+09:00                          *g-changelog-1.1.0*
         - Add |g#vc#add()|, |g#vc#commit()|, |g#vc#diff()| and
           |g#vc#restore()|.
 
-1.0.0	2021-09-20T05:34:57+09:00		*g-changelog-1.0.0*
-	- Initial version.
+1.0.0   2021-09-20T05:34:57+09:00                          *g-changelog-1.0.0*
+        - Initial version.
 
 
 

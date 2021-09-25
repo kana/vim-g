@@ -88,7 +88,7 @@ function! s:open_command_buffer(filetype, subcommand, args)
 
   " Create a new buffer for the given command.
   let v:errmsg = ''
-  silent! new
+  silent! execute get(g:, 'g_vc_split_modifier', '') 'new'
   if v:errmsg != ''
     " Error message is already showed by Vim.
     return v:false
