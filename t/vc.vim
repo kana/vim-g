@@ -212,6 +212,53 @@ describe 'Public function'
       \   "+staged"
       \ ]
     end
+
+    it 'warns and prevents an attempt of empty commit'
+      !echo 'modified' >foo && git commit -am 'Modified' && rm foo && touch foo
+
+      redir => log
+      silent let result = g#vc#commit('--amend', '-av')
+      redir END
+
+      Expect result to_be_false
+      Expect tabpagenr('$') == 1
+      Expect winnr('$') == 1
+
+      " Git might show a hint about empty commit like the following:
+      "
+      "     On branch master
+      "     No changes
+      "     You asked to amend the most recent commit, but doing so would make
+      "     it empty. You can repeat your command with --allow-empty, or you can
+      "     remove the commit entirely with "git reset HEAD^"."
+      "
+      " It would be better to display this message as is.  But this message is
+      " not displayed if --dry-run is specified.  So that only the following
+      " message is actually displayed at the moment.
+      Expect split(log, '\n') ==# [
+      \   'There are no changes.',
+      \ ]
+
+      " The last change is still not committed.
+      Expect systemlist('git diff HEAD')->MaskCommitIds() ==# [
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -1 +0,0 @@",
+      \   "-modified"
+      \ ]
+      Expect systemlist('git log --oneline')->len() == 2
+      Expect systemlist('git show --oneline')->MaskCommitIds() ==# [
+      \   "XXXXXXX Modified",
+      \   "diff --git a/foo b/foo",
+      \   "index XXXXXXX..XXXXXXX 100644",
+      \   "--- a/foo",
+      \   "+++ b/foo",
+      \   "@@ -0,0 +1 @@",
+      \   "+modified"
+      \ ]
+    end
   end
 
 
