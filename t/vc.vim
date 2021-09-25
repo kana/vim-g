@@ -12,7 +12,7 @@ endfunction
 describe 'Private function'
   describe 's:make_command_buffer_name()'
     after
-      windo bwipeout!
+       %bwipeout!
     end
 
     it 'makes a buffer name based on its arguments'
@@ -51,7 +51,7 @@ describe 'Public function'
 
   after
     cd -
-    windo bwipeout
+    %bwipeout
   end
 
   describe 'g#vc#add()'
