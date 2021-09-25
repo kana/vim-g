@@ -1,4 +1,4 @@
-call vspec#hint({'scope': 'g#branch#_scope()'})
+call vspec#hint({'scope': 'g#branch#_scope()', 'sid': 'g#branch#_sid()'})
 
 describe 'g#branch#get_name'
   before
@@ -31,15 +31,15 @@ describe 'g#branch#get_name'
     end
 
     it 'returns a cached result'
-      Expect g#branch#get_name('.') ==# 'master'
+      Expect Ref('s:branch_name_cache') ==# {}
 
-      !git checkout master~0
-      Expect g#branch#get_name('.') ==# 'master'
+      let valid_cache_key = Call('s:branch_name_cache_key', '.')
+      call Set('s:branch_name_cache', {'.': ['cached value', valid_cache_key]})
+      Expect g#branch#get_name('.') ==# 'cached value'
 
-      !git checkout master
-      Expect g#branch#get_name('.') ==# 'master'
-
+      " Invalidate the cache key which is based on getftime().
       sleep 1
+
       !git checkout master~0
       Expect g#branch#get_name('.') ==# 'master~0'
     end
