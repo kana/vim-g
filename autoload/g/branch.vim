@@ -26,6 +26,10 @@ function! g#branch#_scope()
   return s:
 endfunction
 
+function! g#branch#_sid()
+  return expand('<SID>')
+endfunction
+
 function! g#branch#get_name(dir)
   let cache_entry = get(s:branch_name_cache, a:dir, 0)
   if cache_entry is 0
