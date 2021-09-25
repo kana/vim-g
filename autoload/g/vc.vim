@@ -45,10 +45,13 @@ endfunction
 
 function! s:fetch_command_buffer_contents(subcommand, args)
   if a:subcommand ==# 'commit'
+    " Check there are changes to commit.
     call system(s:make_command_line(['commit', '--dry-run'] + a:args))
     if v:shell_error != 0
       return []
     endif
+
+    " Generate .git/COMMIT_EDITMSG.
     call system(s:make_command_line(['-c', 'core.editor=false', 'commit'] + a:args))
     return readfile(s:get_git_dir() .. '/COMMIT_EDITMSG')
   elseif a:subcommand ==# 'diff'
