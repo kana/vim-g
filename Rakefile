@@ -4,6 +4,7 @@ task :ci => [:dump, :test]
 
 task :dump do
   sh 'vim --version'
+  sh 'git --version'
 end
 
 task :test do
