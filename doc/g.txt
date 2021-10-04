@@ -44,6 +44,7 @@ This is a Vim plugin which provides misc. utilities for Git.
 
 Requirements:
 - Vim 8.2.3446 or later
+- Git 2.26.1 or later
 
 Latest version:
 https://github.com/kana/vim-g
