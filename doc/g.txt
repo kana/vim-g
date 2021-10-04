@@ -1,5 +1,5 @@
 *g.txt*                 Misc. Git utilities
-Version 1.1.0
+Version 1.2.0
 Copyright (C) 2018-2021 Kana Natsuno <https://whileimautomaton.net/>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -44,6 +44,7 @@ This is a Vim plugin which provides misc. utilities for Git.
 
 Requirements:
 - Vim 8.2.3446 or later
+- Git 2.26.1 or later
 
 Latest version:
 https://github.com/kana/vim-g
@@ -184,6 +185,11 @@ BUGS                                                                  *g-bugs*
 
 ==============================================================================
 CHANGELOG                                                        *g-changelog*
+
+1.2.0   2021-09-26T11:17:30+09:00                          *g-changelog-1.2.0*
+        - Add |g:g_vc_split_modifier|.
+        - Fix |g#vc#add()|, |g#vc#commit()| and |g#vc#restore()| to avoid the
+          more prompt in case of success.
 
 1.1.0   2021-09-23T18:55:50+09:00                          *g-changelog-1.1.0*
         - Add |g#vc#add()|, |g#vc#commit()|, |g#vc#diff()| and
