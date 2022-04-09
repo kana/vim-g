@@ -356,13 +356,14 @@ describe ':G blame'
       \   'vimOperParen': 'o',
       \   'vimUserFunc': 'U',
       \   'vimOper': '!',
+      \   'vimVar': 'v',
       \ }
       let stats = []
       for line in range(1, line('$'))
         let stat = []
         for column in range(1, col([line, '$']) - 1)
           let name = synIDattr(synID(line, column, v:true), 'name')
-          call add(stat, get(char_from_name, name, '?'))
+          call add(stat, get(char_from_name, name, '[' .. name .. ']'))
         endfor
         call add(stats, join(stat, ''))
       endfor
@@ -377,10 +378,10 @@ describe ':G blame'
       \   '====================================================bbbnnnnnnb""$',
       \   '====================================================bmmmmmmmmmmm',
       \   '====================================================."""""""""${{{1',
-      \   '====================================================oooooooo!oooooooo""$',
-      \   '====================================================ooooooooo!oU((',
-      \   '====================================================oooooooooo""$',
-      \   '====================================================oooooooooooo',
+      \   '====================================================ovvvvvvv!ovovvvvo""$',
+      \   '====================================================ovvvvvvvv!oU((',
+      \   '====================================================ooovvvvvvo""$',
+      \   '====================================================ovvvvvvvvvvv',
       \ ]
     end
   end
