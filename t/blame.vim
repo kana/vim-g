@@ -351,6 +351,7 @@ describe ':G blame'
       \   'vimFuncBody': 'b',
       \   'vimNotFunc': 'n',
       \   'vimCommand': 'm',
+      \   'vimStringInterpolationBrace': '{',
       \   'vimSep': '{',
       \   'vimNumber': '1',
       \   'vimOperParen': 'o',
