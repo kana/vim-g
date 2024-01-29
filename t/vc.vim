@@ -46,7 +46,7 @@ describe 'Public function'
     call delete('tmp/test', 'rf')
     call mkdir('tmp/test', 'p')
     cd tmp/test
-    !git init && touch foo && git add foo && git commit -m 'Initial commit'
+    !git init -b master && touch foo && git add foo && git commit -m 'Initial commit'
   end
 
   after

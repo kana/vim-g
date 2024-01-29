@@ -18,7 +18,7 @@ describe 'g#branch#get_name'
 
   describe 'in a Git repository'
     before
-      !git init && touch foo && git add foo && git commit -m 'Initial commit'
+      !git init -b master && touch foo && git add foo && git commit -m 'Initial commit'
     end
 
     it 'returns the current branch'
