@@ -371,8 +371,7 @@ describe ':G blame'
       endfor
 
       " Note that this test is fragile. It might be broken whenever
-      " $VIMRUNTIME/syntax/vim.vim is updated. The following syntax
-      " highlighting summary is valid for Vim 8.2.3446.
+      " $VIMRUNTIME/syntax/vim.vim is updated.
       Expect stats ==# [
       \   '====================================================.CCCCCCC!cGcmmmmc""$',
       \   '====================================================.#################',
