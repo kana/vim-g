@@ -374,7 +374,7 @@ describe ':G blame'
       " $VIMRUNTIME/syntax/vim.vim is updated. The following syntax
       " highlighting summary is valid for Vim 8.2.3446.
       Expect stats ==# [
-      \   '====================================================.CCCCCCC!cGceeeec""$',
+      \   '====================================================.CCCCCCC!cGcmmmmc""$',
       \   '====================================================.#################',
       \   '====================================================.FFFFFFFFfff((',
       \   '====================================================bbbnnnnnnb""$',
