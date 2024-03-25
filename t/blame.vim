@@ -349,6 +349,7 @@ describe ':G blame'
       \   'vimFuncKey': 'F',
       \   'vimFunction': 'f',
       \   'vimParenSep': '(',
+      \   'vimFuncBang': 'g',
       \   'vimFuncBody': 'b',
       \   'vimNotFunc': 'n',
       \   'vimCommand': 'm',
@@ -359,6 +360,7 @@ describe ':G blame'
       \   'vimUserFunc': 'U',
       \   'vimOper': '!',
       \   'vimVar': 'v',
+      \   'Delimiter': 'd',
       \ }
       let stats = []
       for line in range(1, line('$'))
@@ -375,7 +377,7 @@ describe ':G blame'
       Expect stats ==# [
       \   '====================================================.CCCCCCC!cGcmmmmc""$',
       \   '====================================================.#################',
-      \   '====================================================.FFFFFFFFfff((',
+      \   '====================================================.FFFFFFFFgffdd',
       \   '====================================================bbbnnnnnnb""$',
       \   '====================================================bmmmmmmmmmmm',
       \   '====================================================."""""""""${{{1',
