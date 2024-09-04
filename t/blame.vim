@@ -341,6 +341,7 @@ describe ':G blame'
       \   'gitBlameHeader': '=',
       \   'vimUserCommand': 'C',
       \   'vimUserCmd': 'c',
+      \   'vimUserCmdKey': 'K',
       \   'vimUserCmdName': '<',
       \   'vimIsCommand': 'G',
       \   'vimEcho': 'e',
@@ -376,7 +377,7 @@ describe ':G blame'
       " Note that this test is fragile. It might be broken whenever
       " $VIMRUNTIME/syntax/vim.vim is updated.
       Expect stats ==# [
-      \   '====================================================.CCCCCCC!c<cmmmmc""$',
+      \   '====================================================.KKKKKKK!c<cmmmmc""$',
       \   '====================================================.#################',
       \   '====================================================.FFFFFFFFgffdd',
       \   '====================================================bbbnnnnnnb""$',
