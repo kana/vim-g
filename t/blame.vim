@@ -333,6 +333,11 @@ describe ':G blame'
     end
 
     it 'highlights blame header'
+      let lines = systemlist('git config --get user.email')
+      if len(lines) > 0 && lines[0] ==# 'ci@example.com'
+        SKIP 'due to frequent changes on syntax highlighting'
+      endif
+
       edit t/fixture/highlight.vim
       G blame
 
